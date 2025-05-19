@@ -28,7 +28,13 @@ const actions = {
 
 const getters = {
   isLogin: state => !!state.accessToken,
-  userName: state => state.profile?.username || ''
+  accessToken: state => state?.accessToken,
+  userName: state => state.profile?.username || '',
+  userEmail: state => state.profile?.email || '',
+  createTime: state => state.profile?.create_time || '',
+  userAvatar: state => state.profile?.avatar || 'https://cdn.acwing.com/media/user/profile/photo/89646_sm_28e4eb758d.jpg',
+  userId: state => state.profile?.user_id || '', 
+  userInfo: state => state.user
 };
 
 export default {

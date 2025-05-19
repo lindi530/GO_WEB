@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import axios from '../axios.js';
+import api from '@/api';
 
 export default {
   name: 'LoginModal',
@@ -63,7 +63,7 @@ export default {
       console.log('onSubmit', this.form);
       try {
         // 确保后端路由为 /users/login
-        const res = await axios.post('/users/login', {
+        const res = await api.login ({
           username: this.form.username,
           password: this.form.password
         }, {
@@ -72,7 +72,7 @@ export default {
           }
         });
 
-        const { accessToken, refreshToken, user } = res.data.data;
+        const { accessToken, refreshToken, user } = res.data;
         // 存储到 Vuex
         this.$store.commit('user/SET_ACCESSTOKEN', accessToken);
         this.$store.commit('user/SET_REFRESHTOKEN', refreshToken);

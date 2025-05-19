@@ -2,19 +2,31 @@
   <aside class="col-md-3 mb-4">
     <div class="card shadow-sm">
       <div class="card-body text-center">
-        <img :src="user.avatar" alt="Avatar" class="rounded-circle mb-3" width="100" height="100">
-        <h5 class="card-title">{{ user.name }}</h5>
-        <p class="text-muted">{{ user.email }}</p>
-        <p>Joined: {{ formattedDate(user.joined) }}</p>
+        <img :src="userAvatar" alt="Avatar" class="rounded-circle mb-3" width="100" height="100">
+        <h5 class="card-title">{{ userName }}</h5>
+        <p class="text-muted">{{ userEmail }}</p>
+        <p>Joined: {{ formattedDate(createTime) }}</p>
       </div>
     </div>
   </aside>
 </template>
 <script>
+
 export default {
   name: 'UserInfo',
-  props: {
-    user: { type: Object, required: true }
+  computed: {
+    userAvatar() {
+      return this.$store.getters['user/userAvatar']; // 你需要定义这个 getter
+    },
+    createTime() {
+      return this.$store.getters['user/createTime'];
+    },
+    userEmail() {
+      return this.$store.getters['user/userEmail'];
+    },
+    userName() {
+      return this.$store.getters['user/userName'];
+    }
   },
   methods: {
     formattedDate(dateStr) {

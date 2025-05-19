@@ -4,34 +4,54 @@
       <UserInfo :user="user" />
       <UserPosts :posts="posts" />
     </div>
-    <NewPostForm @created="addPost" />
-  </div>
+      <NewPostForm @created="addPost" />
+    </div>
 </template>
 <script>
 import UserInfo from '../components/UserInfo.vue';
 import UserPosts from '../components/UserPosts.vue';
 import NewPostForm from '../components/NewPostForm.vue';
+import api from '@/api';
 
 export default {
-  name: 'UserDashboard',
-  components: { UserInfo, UserPosts, NewPostForm },
+  name: 'UserView',
+  components: { UserInfo, UserPosts, NewPostForm},
   data() {
     return {
-      user: {
-        avatar: 'https://via.placeholder.com/100',
-        name: 'John Doe',
-        email: 'john@example.com',
-        joined: '2024-01-15'
-      },
-      posts: [
-        { id: 1, title: 'First Post', date: '2025-05-01', excerpt: 'This is the first post...' },
-        { id: 2, title: 'Another Post', date: '2025-05-10', excerpt: 'More content here...' }
-      ]
+      user: null,
+      posts: []      // ← 在这里声明 posts
     };
   },
+  computed: {
+    userId() {
+      return this.$store.getters['user/userId'];
+    },
+    userInfo() {
+      return this.$store.getters['user/userInfo'];
+    }
+  },
+  async mounted() {
+    // 1. 拉用户信息
+    const u = this.userInfo
+    this.user = u;
+    // 2. 拉帖子列表
+    await this.fetchPosts();
+  },
   methods: {
-    addPost(post) {
-      this.posts.unshift(post);
+    async fetchPosts() {
+      const res = await api.getPosts(this.userId);
+      // 假设后端返回 { code: 0, data: [ ...posts ] }
+      this.posts = res.data.posts || [];
+    },
+    async addPost(post) {
+      // 1) 可先 POST 到后端持久化
+      console.log("data: ", { "user_id": this.userId, ...post })
+      const res = await api.createPost(this.userId, { "user_Id": this.userId, ...post });
+      // 后端返回的真正对象
+      const newPost = res.data.post;
+      // 2) 把它 unshift 到父组件的 posts
+      // console.log(res)
+      this.posts.unshift(newPost);
       this.$toast?.success('Post created!');
     }
   }

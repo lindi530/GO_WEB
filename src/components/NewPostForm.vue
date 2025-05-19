@@ -25,10 +25,13 @@ export default {
     submit() {
       const newPost = {
         ...this.post,
-        id: Date.now(),
-        date: new Date().toISOString(),
-        excerpt: this.post.content.slice(0, 100)
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: 0,
+        content: this.post.content.slice(0, 100)
+        
       };
+      console.log('newdata:', newPost)
       this.$emit('created', newPost);
       this.post.title = '';
       this.post.content = '';

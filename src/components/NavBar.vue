@@ -9,13 +9,17 @@
       <div class="collapse navbar-collapse" :class="{ show: isOpen }">
         <ul class="navbar-nav me-auto mb-0">
           <li v-for="item in leftLinks" :key="item.to" class="nav-item">
-            <router-link class="nav-link px-3" :to="item.to">{{ item.label }}</router-link>
+            <button type="button" class="nav-link btn btn-link px-3" @click="handleLinkClick(item)">
+              {{ item.label }}
+            </button>
           </li>
         </ul>
         <ul class="navbar-nav ms-auto mb-0">
   <template v-if="isLogin">
     <li class="nav-item">
-      <span class="nav-link px-3">{{ userName }}</span>
+      <router-link :to="`/users/${$store.getters['user/userId']}`" class="nav-link px-3">
+        {{ userName }}
+      </router-link>
     </li>
     <li class="nav-item">
       <a href="#" class="nav-link px-3" @click.prevent="logout">登出</a>
@@ -30,8 +34,7 @@
     </li>
   </template>
 </ul>
-      </div>
-
+    </div>
       <LoginModal v-model:visible="loginVisible" @login-success="handleLoginSuccess" />
       <RegisterModal v-model:visible="registerVisible" />
     </div>
@@ -45,36 +48,61 @@ import RegisterModal from './RegisterModal.vue';
 export default {
   name: 'NavBar',
   components: { LoginModal, RegisterModal },
-  data() {
-    return {
-      isOpen: false,
-      loginVisible: false,
-      registerVisible: false,
-      leftLinks: [
-        { label: '首页', to: '/' },
-        { label: '用户信息', to: '/users' },
-        { label: '帖子列表', to: '/posts' }
-      ]
-    };
-  },
   computed: {
     isLogin() {
       return this.$store.getters['user/isLogin'];
     },
     userName() {
       return this.$store.getters['user/userName'];
+    },
+    userId() {
+      return this.$store.getters['user/userId']; // 你需要在 user 模块中定义这个 getter
+    },
+    leftLinks() {
+      const links = [
+        { label: '首页', to: '/' },
+        { label: '帖子列表', to: '/posts/' },
+        { label: '用户信息', to: 'user-info' } // 默认空，点击时再动态判断跳转
+      ];
+      return links;
     }
   },
   methods: {
+    handleLinkClick(item) {
+      console.log(this.isLogin + "    handleLinkClick    " + this.userId)
+      if (item.label === '用户信息') {
+        console.log("用户信息：")
+        if (this.isLogin && this.userId) {
+          this.$router.push(`/users/${this.userId}`);
+          console.log("已登录")
+        } else {
+          this.loginVisible = true;
+          this.pendingRoute = `/users/${this.userId}`;// 标记为用户信息页
+        }
+      } else {
+        this.$router.push(item.to);
+      }
+    },
     logout() {
       this.$store.dispatch('user/logout');
     },
-    handleLoginSuccess(user) {
-      console.log('登录成功的用户:', user);
+    handleLoginSuccess() {
       this.loginVisible = false;
-      // 可选：如果你想显示欢迎信息也可以设置本地 userProfile
-      this.userProfile = user;
+      this.$nextTick(() => {
+        if (this.pendingRoute && this.userId) {
+          this.$router.push(`/users/${this.userId}`);
+          this.pendingRoute = null;
+        }
+      });
     }
+  }, 
+  data() {
+    return {
+      isOpen: false,
+      loginVisible: false,
+      registerVisible: false,
+      pendingRoute: null
+    };
   }
 };
 </script>

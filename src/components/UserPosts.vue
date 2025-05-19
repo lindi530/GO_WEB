@@ -4,16 +4,16 @@
     <div v-if="pagedPosts.length" class="list-group">
       <router-link
         v-for="post in pagedPosts"
-        :key="post.id"
-        :to="`/posts/${post.id}`"
+        :key="post.post_id"
+        :to="`/posts/${post.post_id}`"
         class="list-group-item list-group-item-action mb-2 shadow-sm"
       >
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h6 class="mb-1">{{ post.title }}</h6>
-            <p class="mb-0 text-truncate">{{ post.excerpt }}</p>
+            <p class="mb-0 text-truncate">{{ post.content }}</p>
           </div>
-          <small class="text-muted ms-3">{{ formattedDate(post.date) }}</small>
+          <small class="text-muted ms-3">{{ formattedDate(post.created_at) }}</small>
         </div>
       </router-link>
     </div>
@@ -40,28 +40,29 @@
 export default {
   name: 'UserPosts',
   props: {
-    posts: { type: Array, required: true },
-    pageSize: { type: Number, default: 5 }
+    posts:    { type: Array, default: () => [] },
+    pageSize: { type: Number, default: 3 }
   },
   data() {
-    return { currentPage: 1 };
+     return { currentPage: 1 };
   },
   computed: {
-    totalPages() {
-      return Math.ceil(this.posts.length / this.pageSize);
-    },
+    totalPages() { return Math.ceil(this.posts.length / this.pageSize); },
     pagedPosts() {
       const start = (this.currentPage - 1) * this.pageSize;
       return this.posts.slice(start, start + this.pageSize);
     }
   },
   methods: {
-    formattedDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    },
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
+      window.scrollTo(0, 0);
+    },
+    formattedDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
     }
   }
 };
