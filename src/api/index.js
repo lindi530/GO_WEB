@@ -10,6 +10,9 @@ export default {
   createPost(userId, postdata) {
     return request.post(`/users/${userId}/post`, postdata);
   },
+  register(postdata) {
+    return request.post('users/register', postdata)
+  },
   getProfile() {
     return request.get('/users/me/');
   },

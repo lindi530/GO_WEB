@@ -25,16 +25,6 @@
               />
             </div>
             <div class="mb-3">
-              <label for="regEmail" class="form-label">邮箱</label>
-              <input
-                type="email"
-                class="form-control"
-                id="regEmail"
-                v-model="form.email"
-                required
-              />
-            </div>
-            <div class="mb-3">
               <label for="regPassword" class="form-label">密码</label>
               <input
                 type="password"
@@ -44,7 +34,26 @@
                 required
               />
             </div>
-            <button type="submit" class="btn btn-success">注册</button>
+            <div class="mb-3">
+              <label for="re_password" class="form-label">确认密码</label>
+              <input
+                type="password"
+                class="form-control"
+                id="re_password"
+                v-model="form.re_password"
+                required
+              />
+            </div>
+            <div class="d-flex align-items-center">
+              <button type="submit" class="btn btn-success">注册</button>
+              <!-- 新增的错误提示区域 -->
+              <transition name="fade">
+                <div v-if="errorMessage" class="text-danger ms-3">
+                  <i class="bi bi-exclamation-circle-fill me-1"></i>
+                  {{ errorMessage }}
+                </div>
+              </transition>
+            </div>
           </form>
         </div>
       </div>
@@ -53,27 +62,94 @@
 </template>
 
 <script>
+import api from '@/api';
 export default {
   name: 'RegisterModal',
   props: {
     visible: { type: Boolean, default: false }
   },
   data() {
-    return { form: { username: '', email: '', password: '' } };
+    return { 
+      form: { 
+        username: '', 
+        password: '', 
+        re_password: '' 
+      },
+      errorMessage: ''
+    };
   },
   methods: {
     close() {
       this.$emit('update:visible', false);
       this.reset();
     },
-    submit() {
-      console.log('Register:', this.form);
-      this.close();
+    async submit() {
+      this.errorMessage = ''
+      try {
+        console.log("Hello 1")
+        const {username, password, re_password} = this.form
+        const regRes = await this.register({
+          username,
+          password,
+          re_password
+        })
+        if(regRes) {
+          await this.login({
+            username,
+            password
+          })
+          this.errorMessage = '注册成功，正在登录！'
+          setTimeout(() => {
+            this.close(); // 1秒后执行
+          }, 1000);
+        }
+      } catch(err) {
+        alert(err.response?.data?.message || '注册失败，请重试');
+      }
+    },
+    async register(data) {
+      console.log("Hello 2")
+      try {
+        const regRes = await api.register(data, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        if (regRes.code) {
+          this.errorMessage = regRes.message
+          return false
+        }
+        return true
+      } catch(err) {
+          alert(err.response?.data?.message || '注册失败，请重试');
+      }
+    },
+    async login(data) {
+      console.log("Hello 3")
+      try {
+        const loginRes = await api.login (data, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (loginRes.code) {
+          this.errorMessage = loginRes.message
+          return
+        }
+        const { accessToken, refreshToken, user } = loginRes.data;
+        // 存储到 Vuex
+        this.$store.commit('user/SET_ACCESSTOKEN', accessToken);
+        this.$store.commit('user/SET_REFRESHTOKEN', refreshToken);
+        this.$store.commit('user/SET_PROFILE', user);
+        this.$emit('login-success', user);
+      } catch(err) {
+          alert(err.response?.data?.message || '登录失败，请重试');
+      }
     },
     reset() {
       this.form.username = '';
-      this.form.email = '';
       this.form.password = '';
+      this.form.re_password = '';
     }
   }
 };
