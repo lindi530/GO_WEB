@@ -150,6 +150,7 @@ export default {
       this.form.username = '';
       this.form.password = '';
       this.form.re_password = '';
+      this.errorMessage = ''
     }
   }
 };

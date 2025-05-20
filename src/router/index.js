@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersView.vue'
 import NotFound from '@/components/NotFound.vue'
+import UserList from '@/views/UserList.vue'
 
 
 const routes = [
@@ -15,6 +16,11 @@ const routes = [
     path: '/posts',
     name: 'Posts',
     component: PostsView
+  },
+  {
+    path: '/users/userList',
+    name: 'UserList',
+    component: UserList
   },
   {
     path: '/users/:id',

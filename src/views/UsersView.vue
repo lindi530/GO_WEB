@@ -2,7 +2,9 @@
   <div class="container my-4">
     <div class="row">
       <UserInfo :user="user" />
-      <UserPosts :posts="posts" />
+      <UserPosts :posts="posts"
+                 @post-deleted="handlePostDeleted"
+       />
     </div>
       <NewPostForm @created="addPost" />
     </div>
@@ -39,20 +41,24 @@ export default {
   },
   methods: {
     async fetchPosts() {
-      const res = await api.getPosts(this.userId);
+      const res = await api.getPostsByUserId(this.userId);
       // 假设后端返回 { code: 0, data: [ ...posts ] }
       this.posts = res.data.posts || [];
     },
     async addPost(post) {
       // 1) 可先 POST 到后端持久化
-      console.log("data: ", { "user_id": this.userId, ...post })
       const res = await api.createPost(this.userId, { "user_Id": this.userId, ...post });
       // 后端返回的真正对象
       const newPost = res.data.post;
+      console.log("newPost: ", newPost)
       // 2) 把它 unshift 到父组件的 posts
       // console.log(res)
       this.posts.unshift(newPost);
       this.$toast?.success('Post created!');
+    },
+    handlePostDeleted(deletedPostId) {
+      // 过滤掉被删除的帖子
+      this.posts = this.posts.filter(post => post.post_id !== deletedPostId)
     }
   }
 };

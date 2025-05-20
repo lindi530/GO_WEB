@@ -1,22 +1,37 @@
 <template>
   <main class="col-md-9 mb-4">
     <h4 class="mb-3">My Posts</h4>
+
     <div v-if="pagedPosts.length" class="list-group">
-      <router-link
+      <div
         v-for="post in pagedPosts"
         :key="post.post_id"
-        :to="`/posts/${post.post_id}`"
-        class="list-group-item list-group-item-action mb-2 shadow-sm"
+        class="list-group-item mb-2 shadow-sm"
       >
         <div class="d-flex justify-content-between align-items-start">
-          <div>
+          <!-- 只有标题和摘要可点进详情 -->
+          <router-link
+            :to="`/posts/${post.post_id}`"
+            class="flex-grow-1 text-decoration-none text-body"
+          >
             <h6 class="mb-1">{{ post.title }}</h6>
             <p class="mb-0 text-truncate">{{ post.content }}</p>
-          </div>
-          <small class="text-muted ms-3">{{ formattedDate(post.created_at) }}</small>
+            <small class="text-muted">{{ formattedDate(post.created_at) }}</small>
+          </router-link>
+
+          <!-- 单独的删除按钮，不会触发 router-link -->
+          <button
+            type="button"
+            class="btn btn-link text-danger p-0 ms-3"
+            @click="handleDelete(post.post_id, post.user_id)"
+            title="Delete post"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
-      </router-link>
+      </div>
     </div>
+
     <p v-else class="text-muted">You haven't posted anything yet.</p>
 
     <!-- Pagination Controls -->
@@ -25,7 +40,11 @@
         <li :class="['page-item', { disabled: currentPage === 1 }]">
           <button class="page-link" @click="changePage(currentPage - 1)">Previous</button>
         </li>
-        <li v-for="page in totalPages" :key="page" :class="['page-item', { active: page === currentPage }]">
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          :class="['page-item', { active: page === currentPage }]"
+        >
           <button class="page-link" @click="changePage(page)">{{ page }}</button>
         </li>
         <li :class="['page-item', { disabled: currentPage === totalPages }]">
@@ -37,6 +56,7 @@
 </template>
 
 <script>
+import api from '@/api';
 export default {
   name: 'UserPosts',
   props: {
@@ -63,6 +83,23 @@ export default {
       return new Date(dateStr).toLocaleDateString(undefined, {
         year: 'numeric', month: 'short', day: 'numeric'
       });
+    },
+    async handleDelete(postId, userId) {
+      if (!confirm("Are you sure you want to delete this post?")) return
+      try {
+        const response = await api.deletePost(userId, postId)
+
+        if (response.code) throw new Error('Delete failed')
+        
+        // 从前端列表中移除已删除的帖子
+        this.$emit('post-deleted', postId)
+        // 如果需要可以添加成功提示
+        alert('Post deleted successfully')
+        
+      } catch (error) {
+        console.error('Delete error:', error)
+        alert('Failed to delete post')
+      }
     }
   }
 };

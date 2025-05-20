@@ -61,15 +61,15 @@ export default {
     leftLinks() {
       const links = [
         { label: '首页', to: '/' },
-        { label: '帖子列表', to: '/posts/' },
-        { label: '用户信息', to: 'user-info' } // 默认空，点击时再动态判断跳转
+        { label: '帖子列表', to: '/posts' },  
+        { label: '用户信息', to: 'user-info' }, // 默认空，点击时再动态判断跳转
+        { label: '用户列表', to: '/users/userList'},
       ];
       return links;
     }
   },
   methods: {
     handleLinkClick(item) {
-      console.log(this.isLogin + "    handleLinkClick    " + this.userId)
       if (item.label === '用户信息') {
         console.log("用户信息：")
         if (this.isLogin && this.userId) {
