@@ -20,6 +20,7 @@ const mutations = {
   MODIFT_PROFILE(state, profile) {
     state.profile.username = profile.username;
     state.profile.email = profile.email;
+    state.profile.quote = profile.quote;
   },
   LOGOUT(state) {
     state.accessToken = '';
@@ -36,12 +37,14 @@ const actions = {
 const getters = {
   isLogin: state => !!state.accessToken,
   accessToken: state => state?.accessToken,
-  userName: state => state.profile?.username || '',
+  userName: state => state.profile?.user_name || '',
+  userQuote: state => state.profile?.quote || '',
   userEmail: state => state.profile?.email || '',
   updateTime: state => state.profile?.update_time || '',
   userAvatar: state => state.profile?.avatar || 'https://cdn.acwing.com/media/user/profile/photo/89646_sm_28e4eb758d.jpg',
   userId: state => state.profile?.user_id || '', 
-  userInfo: state => state.profile
+  userInfo: state => state.profile,
+
 };
 
 export default {

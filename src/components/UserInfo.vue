@@ -15,6 +15,7 @@
 
         <h5 class="card-title">{{ userName }}</h5>
         <p class="text-muted">{{ userEmail }}</p>
+        <p class="text-muted">{{ "个性签名：" + userQuote }}</p>
         <p>Joined: {{ formattedDate(createTime) }}</p>
       </div>
     </div>
@@ -40,11 +41,13 @@ export default {
       return this.$store.getters['user/userAvatar']
     },
     createTime() {
-      console.log("updateTime: ", this.$store.getters['user/updateTime']);
       return this.$store.getters['user/updateTime'];
     },
     userEmail() {
       return this.$store.getters['user/userEmail'];
+    },
+    userQuote() {
+      return this.$store.getters['user/userQuote']
     },
     userName() {
       return this.$store.getters['user/userName'];

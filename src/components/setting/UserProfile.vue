@@ -18,6 +18,7 @@ export default {
   name: "UserProfile",
   computed: {
     currentUser() {
+      console.log("currentUser:", this.$store.getters['user/userInfo'])
       return this.$store.getters['user/userInfo']
     },
     userId() {
@@ -42,9 +43,12 @@ export default {
       try {
         
         const upFormData = {
-          "username": formData.username,
+          "user_name": formData.user_name,
           "email": formData.email,
+          "quote": formData.quote,
         }
+
+        console.log("upFormData: ", upFormData)
 
         const res = await api.modifyUserProfile(this.userId, upFormData)
         console.log(res)

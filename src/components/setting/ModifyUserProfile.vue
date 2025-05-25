@@ -20,15 +20,21 @@
             <form @submit.prevent="submitForm">
               <div class="mb-3">
                 <label class="form-label">用户名：</label>
-                <input v-model="form.username" type="text" class="form-control" />
+                <input v-model="form.user_name" type="text" class="form-control" />
               </div>
               <div class="mb-3">
                 <label class="form-label">邮件地址：</label>
                 <input v-model="form.email" type="email" class="form-control" />
               </div>
               <div class="mb-3">
-                <label class="form-label">个人简介：</label>
-                <textarea v-model="form.bio" class="form-control" rows="3"></textarea>
+                <label class="form-label">个性签名：</label>
+                <textarea v-model="form.quote" class="form-control" rows="3" maxlength="50"></textarea>
+                 <div class="form-text text-muted">
+                   最多输入 50 个字符
+                 </div>
+                <div class="form-text text-end text-muted">
+                  {{ form.quote?.length || 0}}/50 字
+                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label">组织：</label>
