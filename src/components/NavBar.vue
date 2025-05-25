@@ -14,32 +14,69 @@
             </button>
           </li>
         </ul>
+
+        <!-- 登录后用户菜单 -->
         <ul class="navbar-nav ms-auto mb-0">
-  <template v-if="isLogin">
-    <li class="nav-item">
-      <router-link :to="`/users/${$store.getters['user/userId']}`" class="nav-link px-3">
-        {{ userName }}
-      </router-link>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link px-3" @click.prevent="logout">登出</a>
-    </li>
-  </template>
-  <template v-else>
-    <li class="nav-item">
-      <a href="#" class="nav-link px-3" @click.prevent="loginVisible = true">登录</a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link px-3" @click.prevent="registerVisible = true">注册</a>
-    </li>
-  </template>
-</ul>
-    </div>
+          <template v-if="isLogin">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle user-menu"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                :src="userAvatar"
+                alt="Avatar"
+                class="rounded-circle me-2"
+                width="28"
+                height="28"
+              />
+                {{ userName }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow animated-dropdown">
+                <li>
+                  <router-link
+                    class="dropdown-item"
+                    :to="`/users/${$store.getters['user/userId']}`"
+                  >
+                    <i class="bi bi-person me-2"></i> 用户信息
+                  </router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" to="/user/profile">
+                    <i class="bi bi-gear me-2"></i> 设置
+                  </router-link>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="#" @click.prevent="logout">
+                    <i class="bi bi-box-arrow-right me-2"></i> 登出
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </template>
+
+          <!-- 未登录状态 -->
+          <template v-else>
+            <li class="nav-item">
+              <a href="#" class="nav-link px-3" @click.prevent="loginVisible = true">登录</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link px-3" @click.prevent="registerVisible = true">注册</a>
+            </li>
+          </template>
+        </ul>
+      </div>
+
       <LoginModal v-model:visible="loginVisible" @login-success="handleLoginSuccess" />
       <RegisterModal v-model:visible="registerVisible" />
     </div>
   </nav>
 </template>
+
 
 <script>
 import LoginModal from './LoginModal.vue';
@@ -57,6 +94,9 @@ export default {
     },
     userId() {
       return this.$store.getters['user/userId']; // 你需要在 user 模块中定义这个 getter
+    },
+    userAvatar() {
+      return this.$store.getters['user/userAvatar'] || '/default-avatar.png';
     },
     leftLinks() {
       const links = [
@@ -109,8 +149,44 @@ export default {
 </script>
 
 <style scoped>
-.nav-link { color: rgba(255,255,255,0.85)!important; position: relative; }
-.nav-link::after { content: ''; position: absolute; bottom:0; left:50%; width:0; height:2px; background:#fff; transition:all 0.3s; }
-.nav-link:hover { color:#fff!important; }
-.nav-link:hover::after { left:25%; width:50%; }
+.user-menu {
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.animated-dropdown {
+  animation: fadeInDown 0.2s ease-out;
+}
+.navbar-dark .nav-link,
+.user-menu,
+.dropdown-item {
+  color: #ffffff !important;
+}
+
+.dropdown-menu {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.dropdown-item {
+  color: #333333 !important;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+  color: #000000 !important;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>

@@ -5,6 +5,7 @@ import UsersView from '../views/UsersView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserList.vue'
 import Test from '@/components/test/Test.vue'
+import UserProfile from '@/components/setting/UserProfile.vue'
 
 
 const routes = [
@@ -27,7 +28,12 @@ const routes = [
     path: '/users/:id',
     name: 'UserInfo',
     component: UsersView
-  }, 
+  },
+  {
+    path: '/user/profile',
+    name: 'UserProfile',
+    component: UserProfile
+  },
   {
     path: '/test',
     name: 'test',

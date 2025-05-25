@@ -7,6 +7,9 @@ export default {
   upLoadAvatar(userId, formData) {
     return request.post(`/users/${userId}/modify_avatar`, formData);
   },
+  modifyUserProfile(userId, formData) {
+    return request.patch(`/users/${userId}/profile`, formData);
+  },
   getAllPosts() {
     return request.get('/posts')
   },

@@ -14,6 +14,13 @@ const mutations = {
   SET_PROFILE(state, user) {
     state.profile = user;
   },
+  SET_PROFILE_AVATAR(state, avatar) {
+    state.profile.avatar = avatar;
+  },
+  MODIFT_PROFILE(state, profile) {
+    state.profile.username = profile.username;
+    state.profile.email = profile.email;
+  },
   LOGOUT(state) {
     state.accessToken = '';
     state.profile = {};
@@ -31,10 +38,10 @@ const getters = {
   accessToken: state => state?.accessToken,
   userName: state => state.profile?.username || '',
   userEmail: state => state.profile?.email || '',
-  createTime: state => state.profile?.create_time || '',
+  updateTime: state => state.profile?.update_time || '',
   userAvatar: state => state.profile?.avatar || 'https://cdn.acwing.com/media/user/profile/photo/89646_sm_28e4eb758d.jpg',
   userId: state => state.profile?.user_id || '', 
-  userInfo: state => state.user
+  userInfo: state => state.profile
 };
 
 export default {

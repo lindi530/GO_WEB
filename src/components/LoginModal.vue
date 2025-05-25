@@ -101,6 +101,7 @@ export default {
         this.$store.commit('user/SET_ACCESSTOKEN', accessToken);
         this.$store.commit('user/SET_REFRESHTOKEN', refreshToken);
         this.$store.commit('user/SET_PROFILE', user);
+        console.log("user: ", user)
         this.$emit('login-success', user);
       } catch(err) {
           alert(err.response?.data?.message || '登录失败，请重试');

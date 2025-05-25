@@ -40,7 +40,8 @@ export default {
       return this.$store.getters['user/userAvatar']
     },
     createTime() {
-      return this.$store.getters['user/createTime'];
+      console.log("updateTime: ", this.$store.getters['user/updateTime']);
+      return this.$store.getters['user/updateTime'];
     },
     userEmail() {
       return this.$store.getters['user/userEmail'];
