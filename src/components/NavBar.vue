@@ -64,6 +64,7 @@ export default {
         { label: '帖子列表', to: '/posts' },  
         { label: '用户信息', to: 'user-info' }, // 默认空，点击时再动态判断跳转
         { label: '用户列表', to: '/users/userList'},
+        { label: '测试', to: '/test'}
       ];
       return links;
     }

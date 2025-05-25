@@ -4,6 +4,7 @@ import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserList.vue'
+import Test from '@/components/test/Test.vue'
 
 
 const routes = [
@@ -27,6 +28,11 @@ const routes = [
     name: 'UserInfo',
     component: UsersView
   }, 
+  {
+    path: '/test',
+    name: 'test',
+    component: Test
+  },
   {
     path: '/404',
     name: '404',

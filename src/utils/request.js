@@ -8,11 +8,18 @@ const request = axios.create({
   timeout: 10000
 })
 
+function isFormData(data) {
+  return data instanceof FormData
+}
+
 // 请求拦截器
 request.interceptors.request.use(config => {
   const token = store.getters['user/accessToken']
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  if (isFormData(config.data)) {
+    delete config.headers['Content-Type']
   }
   return config
 }, error => Promise.reject(error))

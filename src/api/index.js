@@ -4,6 +4,9 @@ export default {
   login(payload) {
     return request.post('/users/login', payload);
   },
+  upLoadAvatar(userId, formData) {
+    return request.post(`/users/${userId}/modify_avatar`, formData);
+  },
   getAllPosts() {
     return request.get('/posts')
   },
