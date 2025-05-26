@@ -31,5 +31,14 @@ export default {
   deletePost(userId, postId) {
     return request.delete(`/users/${userId}/posts/${postId}`)
   },
+  checkFollowing(targetUserId) {
+    return request.get(`/users/${targetUserId}/is_following`)
+  },
+  followUser(targetUserID) {
+    return request.post(`/users/${targetUserID}/follow`)
+  },
+  unFollowUser(targetUserID) {
+    return request.delete(`/users/${targetUserID}/follow`)
+  }
   // 这里按需继续扩展接口
 };

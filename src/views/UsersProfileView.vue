@@ -1,7 +1,7 @@
 <template>
   <div class="container my-4">
     <div class="row">
-      <UserProfileInfo :user="userProfile" />
+      <UserProfileInfo :user="user" />
       <UserPosts :posts="posts"
                  @post-deleted="handlePostDeleted"
        />
@@ -13,19 +13,17 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useStore } from 'vuex';
 import UserProfileInfo from '../components/UserProfileInfo.vue';
 import UserPosts from '../components/UserPosts.vue';
 import NewPostForm from '../components/NewPostForm.vue';
 import api from '@/api';
 
-const userProfile = ref({});
+const user = ref({});
 const posts = ref([]);
 
 const route = useRoute();
-const store = useStore();
 
-const userId = computed(() => store.getters['user/userId']);
+const userId = computed(() => parseInt(route.params.userId));
 
 async function addPost(post) {
   const res = await api.createPost(userId.value, { user_Id: userId.value, ...post });
@@ -45,7 +43,7 @@ onMounted(async () => {
   const userIdFromRoute = parseInt(route.params.userId);
   const profileResp = await api.getUserProfileInfo(userIdFromRoute);
   if (profileResp.code === 0) {
-    userProfile.value = profileResp.data;
+    user.value = profileResp.data;
   }
 
   const postsResp = await api.getPostsByUserId(userIdFromRoute);

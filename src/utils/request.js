@@ -30,9 +30,9 @@ let lastPing = 0
 function refreshUserOnlineStatus(token) {
   // 简单 ping，后端用来更新 Redis TTL
   const now = Date.now()
-  if (now - lastPing < 60 * 1000) return
+  if (now - lastPing < 1 * 1000) return
   lastPing = now
-  
+
   if (!token) return
   fetch('/users/online', {
     method: 'POST',

@@ -66,10 +66,11 @@ onMounted(async () => {
 
 const filteredUsers = computed(() => {
   const q = searchQuery.value.toLowerCase();
-  return users.value.filter(user =>
-    user.user_name?.toLowerCase().includes(q)
-  );
+  return users.value
+    .filter(user => user.user_name?.toLowerCase().includes(q))
+    .sort((a, b) => (b.online_state === true ? 1 : 0) - (a.online_state === true ? 1 : 0));
 });
+
 </script>
 
 <style>

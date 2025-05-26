@@ -1,15 +1,14 @@
 <template>
   <div class="container my-4">
-    <List/>
+    <UserFeed/>
   </div>
 </template>
 
 <script>
-// import UserFeed from './UserFeed.vue'
-import List from '../UserList.vue'
+import UserFeed from './UserFeed.vue'
 
 export default {
-  components: { List},
+  components: { UserFeed},
   name: "Test",
 
 }
