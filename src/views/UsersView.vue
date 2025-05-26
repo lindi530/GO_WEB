@@ -1,8 +1,8 @@
 <template>
   <div class="container my-4">
     <div class="row">
-      <UserInfo :user="user" />
-      <UserPosts :posts="posts"
+      <UserProfileInfo :user="userProfile" />
+      <UserPosts :posts="posts.posts"
                  @post-deleted="handlePostDeleted"
        />
     </div>
@@ -10,19 +10,39 @@
     </div>
 </template>
 <script>
-import UserInfo from '../components/UserInfo.vue';
+import UserProfileInfo from '../components/UserProfileInfo.vue';
 import UserPosts from '../components/UserPosts.vue';
 import NewPostForm from '../components/NewPostForm.vue';
 import api from '@/api';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'UserView',
-  components: { UserInfo, UserPosts, NewPostForm},
-  data() {
+  components: { UserProfileInfo, UserPosts, NewPostForm},
+  setup() {
+    const userProfile = ref({})
+    const posts = ref([])
+
+    onMounted(async () => {
+      const route = useRoute();
+      const userId = parseInt(route.params.userId); // 示例
+      const profileResp = await api.getUserProfileInfo(userId)
+      if (profileResp.code === 0) {
+        userProfile.value = profileResp.data
+      }
+
+      const postsResp = await api.getPostsByUserId(userId)
+      if (postsResp.code === 0) {
+        posts.value = postsResp.data
+      }
+      console.log("userProfile: ", userProfile.value)
+      console.log("posts: ", posts.value)
+    })
     return {
-      user: null,
-      posts: []      // ← 在这里声明 posts
-    };
+      userProfile,
+      posts
+    }
   },
   computed: {
     userId() {
@@ -34,17 +54,12 @@ export default {
   },
   async mounted() {
     // 1. 拉用户信息
-    const u = this.userInfo
-    this.user = u;
-    // 2. 拉帖子列表
-    await this.fetchPosts();
+    // const u = this.userInfo
+    // this.user = u;
+    // // 2. 拉帖子列表
+    // await this.fetchPosts();
   },
   methods: {
-    async fetchPosts() {
-      const res = await api.getPostsByUserId(this.userId);
-      // 假设后端返回 { code: 0, data: [ ...posts ] }
-      this.posts = res.data.posts || [];
-    },
     async addPost(post) {
       // 1) 可先 POST 到后端持久化
       const res = await api.createPost(this.userId, { "user_Id": this.userId, ...post });

@@ -10,6 +10,9 @@ export default {
   modifyUserProfile(userId, formData) {
     return request.patch(`/users/${userId}/profile`, formData);
   },
+  getUserProfileInfo(userId) {
+    return request.get(`/users/${userId}`)
+  },
   getAllPosts() {
     return request.get('/posts')
   },

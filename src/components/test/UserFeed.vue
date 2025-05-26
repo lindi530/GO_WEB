@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <aside class="col-md-4 mb-4">
+    <aside class="col-md-3 mb-3">
       <div class="card">
         <div class="card-body d-flex align-items-center">
           <img :src="user.avatar" alt="avatar" class="rounded-circle me-3" width="60" height="60" />
