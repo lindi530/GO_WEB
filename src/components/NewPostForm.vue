@@ -28,8 +28,7 @@ export default {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         status: 0,
-        content: this.post.content.slice(0, 100)
-        
+        content: this.post.content.slice(0, 50)
       };
       console.log('newdata:', newPost)
       this.$emit('created', newPost);

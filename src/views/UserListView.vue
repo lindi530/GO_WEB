@@ -6,10 +6,10 @@
 
 <script>
 // import UserFeed from './UserFeed.vue'
-import List from '../UserList.vue'
+import List from '../components/UserList.vue'
 
 export default {
-  components: { List},
+  components: { List },
   name: "Test",
 
 }

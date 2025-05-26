@@ -23,7 +23,7 @@
           <button
             type="button"
             class="btn btn-link text-danger p-0 ms-3"
-            @click="handleDelete(post.post_id, post.user_id)"
+            @click="handleDelete(post.id, post.user_id)"
             title="Delete post"
           >
             <i class="bi bi-trash"></i>
@@ -88,7 +88,7 @@ export default {
       if (!confirm("Are you sure you want to delete this post?")) return
       try {
         const response = await api.deletePost(userId, postId)
-
+ 
         if (response.code) throw new Error('Delete failed')
         
         // 从前端列表中移除已删除的帖子

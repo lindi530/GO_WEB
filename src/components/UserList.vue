@@ -9,8 +9,8 @@
       />
       <ul class="list-group">
         <li
-            v-for="(user, index) in filteredUsers"
-            :key="user.id"
+            v-for="(user, index) in users"
+            :key="user.user_id"
             :class="[
                 'list-group-item d-flex justify-content-between align-items-center',
                 index % 2 === 1 ? 'color-odd' : 'color-even'
@@ -18,12 +18,12 @@
             >
         
             <router-link
-                :to="`/users/${user.id}`"
+                :to="`/users/${user.user_id}`"
                 class="d-flex align-items-center text-decoration-none text-dark"
                 >
                 <img :src="user.avatar" class="rounded-circle me-3" alt="avatar" width="48" height="48" />
                 <div class="d-flex align-items-center">
-                    <div class="fw-bold text-primary me-2">{{ user.name }}</div>
+                    <div class="fw-bold text-primary me-2">{{ user.user_name }}</div>
                     <div class="d-flex align-items-center">
                     <i
                         :class="[
@@ -37,12 +37,12 @@
 
           
           <div
-            :class="user.online ? 'text-success' : 'text-muted'"
+            :class="user.online_state ? 'text-success' : 'text-muted'"
             class="d-flex align-items-center"
           >
-            {{ user.online ? '在线' : '离线' }}
+            {{ user.online_state ? '在线' : '离线' }}
             <i
-              :class="user.online ? 'bi bi-check-circle-fill' : 'bi bi-x-circle'"
+              :class="user.online_state ? 'bi bi-check-circle-fill' : 'bi bi-x-circle'"
               class="ms-1"
             ></i>
           </div>
@@ -53,32 +53,39 @@
   </n-space>
 </template>
 
-
-
-
-
 <script>
+import api from '@/api';
+import { onMounted, ref } from 'vue';
+
 export default {
   name: 'List',
+  // data() { 
+  //   return {
+  //     users: [],
+  //   }
+  // },
+  // async mounted() {
+  //   const resp = await api.getUserList()
+  //   if (resp.code == 0) {
+  //       users.value = resp.data.userList
+  //     }
+  // },
+  setup() {
+    const users = ref([]);
+    onMounted(async () => {
+      const resp = await api.getUserList()
+      console.log("resp: ", resp)
+      if (resp.code == 0) {
+        users.value = resp.data.userList
+      }
+    });
+    return {
+      users
+    }
+  },
   data() {
     return {
       searchQuery: '', 
-      users: [
-        {
-          id: 1969930454962176,
-          name: '刘浩林',
-          gender: 'male',
-          avatar: 'https://i.pravatar.cc/48?img=12',
-          online: true
-        },
-        {
-          id: 2,
-          name: '郭雨',
-          gender: 'female',
-          avatar: 'https://i.pravatar.cc/48?img=65',
-          online: true
-        }
-      ]
     }
   },
   computed: {

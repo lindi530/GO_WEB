@@ -17,12 +17,33 @@ request.interceptors.request.use(config => {
   const token = store.getters['user/accessToken']
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    refreshUserOnlineStatus(token)
   }
   if (isFormData(config.data)) {
     delete config.headers['Content-Type']
   }
+  
   return config
 }, error => Promise.reject(error))
+
+let lastPing = 0
+function refreshUserOnlineStatus(token) {
+  // 简单 ping，后端用来更新 Redis TTL
+  const now = Date.now()
+  if (now - lastPing < 60 * 1000) return
+  lastPing = now
+  
+  if (!token) return
+  fetch('/users/online', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+    },
+    body: 'ping',
+  }).catch(err => {
+    console.warn('[Ping Failed]', err)
+  })
+}
 
 // 响应拦截器
 request.interceptors.response.use(
