@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import UserProfileInfo from '../components/UserProfileInfo.vue';
 import UserPosts from '../components/UserPosts.vue';
@@ -40,17 +40,31 @@ function handlePostDeleted(deletedPostId) {
 }
 
 onMounted(async () => {
-  const userIdFromRoute = parseInt(route.params.userId);
-  const profileResp = await api.getUserProfileInfo(userIdFromRoute);
+  console.log("userIdFromRoute: ", userId.value)
+  loadUserProfile()
+});
+
+watch(
+  () => route.params.userId,
+  (newUserId, oldUserId) => {
+    if (newUserId !== oldUserId) {
+      loadUserProfile();
+    }
+  }
+);
+
+const loadUserProfile = async () => {
+  const profileResp = await api.getUserProfileInfo(userId.value);
   if (profileResp.code === 0) {
     user.value = profileResp.data;
   }
-
-  const postsResp = await api.getPostsByUserId(userIdFromRoute);
+  console.log("loadUserProfile: ", user.value)
+  const postsResp = await api.getPostsByUserId(userId.value);
   if (postsResp.code === 0) {
     posts.value = postsResp.data.posts;
   }
-});
+  console.log("postsResp: ", posts.value)
+};
 </script>
 
 <style scoped>

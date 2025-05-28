@@ -61,7 +61,7 @@ const props = defineProps({
 
 const route = useRoute();
 const store = useStore();
-const user = ref(props.user || {});
+const user = computed(() => props.user);
 
 const currentUserId = computed(() => store.getters['user/userId']); // 当前登录用户 ID，可按实际情况调整
 const targetUserId = computed(() => parseInt(route.params.userId));
@@ -69,28 +69,31 @@ const isFollowing = ref(false);
 
 
 const loadUserInfo = async () => {
-  const resp = await api.getUserProfileInfo(targetUserId.value);
-  if (resp.code === 0) {
-    user.value = resp.data;
-    await checkFollowing(); // 👈 拉数据后同步关注状态
-  }
+  // const resp = await api.getUserProfileInfo(targetUserId.value);
+  // if (resp.code === 0) {
+  //   user.value = resp.data;
+  //   await checkFollowing(); // 👈 拉数据后同步关注状态
+  // }
+
+  // console.log("user: ", user.value)
+  await checkFollowing();
 };
 
-onMounted(() => {
-  loadUserInfo(targetUserId);
+onMounted(() => {    // 每次进入页面时，调用一次
+  loadUserInfo();
 });
 
-watch(
-  () => route.params.userId,
-  (newUserId, oldUserId) => {
-    if (newUserId !== oldUserId) {
-      loadUserInfo(parseInt(newUserId));
-    }
-  }
-);
+// watch(
+//   () => route.params.userId,
+//   (newUserId, oldUserId) => {
+//     if (newUserId !== oldUserId) {
+//       loadUserInfo(parseInt(newUserId));
+//     }
+//   }
+// );
 
 const checkFollowing = async () => {
-  const resp = await api.checkFollowing(targetUserId);
+  const resp = await api.checkFollowing(targetUserId.value);
   if (resp.code === 0) {
     isFollowing.value = resp.data.isFollowing;
   }
@@ -100,19 +103,16 @@ const shouldShowFollowButton = computed(() => {
   return currentUserId.value !== targetUserId.value;
 });
 
-// 初始化检查
-checkFollowing();
-
 // 切换关注状态
 const toggleFollow = async () => {
   if (isFollowing.value) {
-    const resp = await api.unFollowUser(targetUserId);
+    const resp = await api.unFollowUser(targetUserId.value);
     if (resp.code === 0) {
       isFollowing.value = false;
       user.value.follower_count--;
     }
   } else {
-    const resp = await api.followUser(targetUserId);
+    const resp = await api.followUser(targetUserId.value);
     if (resp.code === 0) {
       isFollowing.value = true;
       user.value.follower_count++;
