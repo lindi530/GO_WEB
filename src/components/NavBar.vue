@@ -112,7 +112,7 @@ export default {
   methods: {
     handleLinkClick(item) {
       if (item.label === '用户信息') {
-        console.log("用户信息：")
+        console.log("用户信息：", this.userId)
         if (this.isLogin && this.userId) {
           this.$router.push(`/users/${this.userId}`);
           console.log("已登录")

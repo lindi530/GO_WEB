@@ -10,10 +10,28 @@
           height="100"
           style="cursor: pointer"
         >
-        <h5 class="card-title">{{ user.user_name }}</h5>
+        <n-divider />
+        <h5 h5 class="card-title">{{ user.user_name }}</h5>
+        <n-divider />
         <p class="text-muted">{{ user.email }}</p>
+        <n-divider />
         <p class="text-muted">{{ "个性签名：" + user.quote }}</p>
+        <n-divider />
         <p>Joined: {{ formattedDate(user.update_time) }}</p>
+        <n-divider />
+
+        <div class="d-flex justify-content-between w-100 mb-2 text-center">
+          <div class="flex-fill">
+            <div class="text-muted small">关注数</div>
+            <div class="fw-bold">{{ user.following_count }}</div>
+          </div>
+          <div class="flex-fill">
+            <div class="text-muted small">粉丝数</div>
+            <div class="fw-bold">{{ user.follower_count }}</div>
+          </div>
+        </div>
+        <n-divider />
+
         <n-button
           v-if="shouldShowFollowButton"
           size="small"
@@ -29,7 +47,7 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import api from '@/api';
@@ -43,22 +61,33 @@ const props = defineProps({
 
 const route = useRoute();
 const store = useStore();
-const user = ref(props.user || null);
+const user = ref(props.user || {});
 
 const currentUserId = computed(() => store.getters['user/userId']); // 当前登录用户 ID，可按实际情况调整
-const targetUserId = parseInt(route.params.userId);
+const targetUserId = computed(() => parseInt(route.params.userId));
 const isFollowing = ref(false);
 
 
-onMounted(async () => {
-  if (isEmptyObject(user.value)) {
-    const resp = await api.getUserProfileInfo(targetUserId);
-    if (resp.code === 0) {
-      user.value = resp.data;
-      console.log("resp: ", resp.data)
+const loadUserInfo = async () => {
+  const resp = await api.getUserProfileInfo(targetUserId.value);
+  if (resp.code === 0) {
+    user.value = resp.data;
+    await checkFollowing(); // 👈 拉数据后同步关注状态
+  }
+};
+
+onMounted(() => {
+  loadUserInfo(targetUserId);
+});
+
+watch(
+  () => route.params.userId,
+  (newUserId, oldUserId) => {
+    if (newUserId !== oldUserId) {
+      loadUserInfo(parseInt(newUserId));
     }
   }
-});
+);
 
 const checkFollowing = async () => {
   const resp = await api.checkFollowing(targetUserId);
@@ -68,7 +97,7 @@ const checkFollowing = async () => {
 };
 
 const shouldShowFollowButton = computed(() => {
-  return currentUserId.value !== targetUserId;
+  return currentUserId.value !== targetUserId.value;
 });
 
 // 初始化检查
@@ -76,16 +105,17 @@ checkFollowing();
 
 // 切换关注状态
 const toggleFollow = async () => {
-  console.log("toggleFollow: ", isFollowing.value)
   if (isFollowing.value) {
     const resp = await api.unFollowUser(targetUserId);
     if (resp.code === 0) {
       isFollowing.value = false;
+      user.value.follower_count--;
     }
   } else {
     const resp = await api.followUser(targetUserId);
     if (resp.code === 0) {
       isFollowing.value = true;
+      user.value.follower_count++;
     }
   }
 };
