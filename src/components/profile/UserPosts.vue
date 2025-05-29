@@ -2,34 +2,12 @@
   <main class="col-md-9 mb-4">
     <h4 class="mb-3">My Posts</h4>
 
-    <div v-if="pagedPosts.length" class="list-group">
-      <div
+    <div v-if="pagedPosts.length">
+      <SimplePost
         v-for="post in pagedPosts"
         :key="post.post_id"
-        class="list-group-item mb-2 shadow-sm"
-      >
-        <div class="d-flex justify-content-between align-items-start">
-          <!-- 只有标题和摘要可点进详情 -->
-          <router-link
-            :to="`/posts/${post.post_id}`"
-            class="flex-grow-1 text-decoration-none text-body"
-          >
-            <h6 class="mb-1">{{ post.title }}</h6>
-            <p class="mb-0 text-truncate">{{ post.content }}</p>
-            <small class="text-muted">{{ formattedDate(post.created_at) }}</small>
-          </router-link>
-
-          <!-- 单独的删除按钮，不会触发 router-link -->
-          <button
-            type="button"
-            class="btn btn-link text-danger p-0 ms-3"
-            @click="handleDelete(post.id, post.user_id)"
-            title="Delete post"
-          >
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </div>
+        :post="post"
+      />
     </div>
 
     <p v-else class="text-muted">You haven't posted anything yet.</p>
@@ -57,14 +35,20 @@
 
 <script>
 import api from '@/api';
+import avatarPath from '../test/1.png'
+import SimplePost from '../post/SimplePost.vue';
 export default {
+  components: {SimplePost},
   name: 'UserPosts',
   props: {
     posts:    { type: Array, default: () => [] },
     pageSize: { type: Number, default: 3 }
   },
   data() {
-     return { currentPage: 1 };
+    return {
+      currentPage: 1,
+      avatar: avatarPath,
+    };
   },
   computed: {
     totalPages() { return Math.ceil(this.posts.length / this.pageSize); },
@@ -104,3 +88,5 @@ export default {
   }
 };
 </script>
+
+<style></style>

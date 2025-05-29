@@ -20,10 +20,26 @@
         v-for="(post, index) in posts"
         :key="index"
       >
-        <div class="card-header fw-bold">{{ post.title }}</div>
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <!-- 左侧头像 -->
+          <div class="me-3">
+            <img :src="user.avatar" alt="头像" class="rounded-circle" width="40" height="40">
+          </div>
+
+          <!-- 中间用户名和时间 -->
+          <div class="flex-grow-1">
+            <div class="fw-bold">{{user.username}}</div>
+            <div class="text-muted small">{{user.update_time}}</div>
+          </div>
+
+          <!-- 右侧标题 -->
+          <div class="ms-3 text-end fw-bold">
+            {{ post.title }}
+          </div>
+        </div>
         <div class="card-body p-2">
           <pre class="bg-light p-3 rounded overflow-auto" style="max-height: 300px">
-{{ post.code }}
+          {{ post.code }}
           </pre>
         </div>
       </div>
@@ -38,6 +54,7 @@ import avatarImg from './1.png'
 const user = ref({
   avatar: avatarImg,
   username: 'lindi530',
+  update_time: '2025年5月29日',
   following: 15,
   followers: 11,
   views: '1.4万'

@@ -13,9 +13,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import UserProfileInfo from '../components/UserProfileInfo.vue';
-import UserPosts from '../components/UserPosts.vue';
-import NewPostForm from '../components/NewPostForm.vue';
+import UserProfileInfo from '../components/profile/UserProfileInfo.vue';
+import UserPosts from '../components/profile/UserPosts.vue';
+import NewPostForm from '../components/profile/NewPostForm.vue';
 import api from '@/api';
 
 const user = ref({});

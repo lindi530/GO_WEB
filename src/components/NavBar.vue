@@ -79,8 +79,8 @@
 
 
 <script>
-import LoginModal from './LoginModal.vue';
-import RegisterModal from './RegisterModal.vue';
+import LoginModal from './account/LoginModal.vue';
+import RegisterModal from './account/RegisterModal.vue';
 
 export default {
   name: 'NavBar',

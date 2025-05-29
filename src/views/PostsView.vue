@@ -1,23 +1,9 @@
 <template>
   <main class="col-md-9 mb-4 container">
     <h4 class="mb-3">All Posts</h4>
-    <div v-if="posts.length" class="list-group">
-      <div
-        v-for="post in posts"
-        :key="post.post_id"
-        class="list-group-item mb-2 shadow-sm"
-      >
-        <div class="d-flex justify-content-between align-items-start">
-          <!-- 标题和摘要可点击，跳转到帖子详情 -->
-          <router-link
-            :to="`/posts/${post.post_id}`"
-            class="flex-grow-1 text-decoration-none text-body"
-          >
-            <h6 class="mb-1">{{ post.title }}</h6>
-            <p class="mb-0 text-truncate">{{ post.content }}</p>
-            <small class="text-muted me-3">{{ formattedDate(post.created_at) }}</small>
-          </router-link>
-        </div>
+    <div v-if="posts.length" >
+      <div v-for="post in posts" :key="post.post_id">
+        <SimplePost :post="post"/>
       </div>
     </div>
     <p v-else class="text-muted">No posts available.</p>
@@ -25,8 +11,10 @@
 </template>
 
 <script>
+import SimplePost from '@/components/post/SimplePost.vue';
 import api from '@/api';
 export default {
+  components: {SimplePost},
   name: 'AllPosts',
   data() {
     return {
