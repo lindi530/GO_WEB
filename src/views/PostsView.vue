@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import SimplePost from '@/components/post/SimplePost.vue';
+import SimplePost from '@/components/post/PostSimple.vue';
 import api from '@/api';
 export default {
   components: {SimplePost},

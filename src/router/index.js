@@ -6,6 +6,7 @@ import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserListView.vue'
 import Test from '@/components/test/Test.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
+import PostDetail from '@/components/post/PostDetail.vue'
 
 
 const routes = [
@@ -33,6 +34,11 @@ const routes = [
     path: '/user/profile',
     name: 'UserProfile',
     component: UserProfile
+  },
+  {
+    path: '/posts/:post_id',
+    name: 'PostDetail',
+    component: PostDetail,
   },
   {
     path: '/test',

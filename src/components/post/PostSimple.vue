@@ -15,13 +15,13 @@
 
       <!-- 右侧标题 -->
        <router-link
-        :to="`/posts/${post.post_id}`"
+        :to="`/posts/${post.id}`"
         class="flex-grow-1 text-decoration-none text-body"
         >
         <div class="ms-3 text-end fw-bold">
             {{ post.title }}
         </div>
-        </router-link>
+      </router-link>
       
     </div>
 

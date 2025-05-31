@@ -39,6 +39,15 @@ export default {
   },
   unFollowUser(targetUserID) {
     return request.delete(`/users/${targetUserID}/follow`)
-  }
+  },
+  getPostByPostId(postID) {
+    return request.get(`posts/${postID}`)
+  },
+  getPostComments(postID) {
+    return request.get(`posts/${postID}/comments`)
+  },
+  createPost(postID, newPost) {
+    return request.post(`posts/${postID}/comments`, newPost)
+  },
   // 这里按需继续扩展接口
 };
