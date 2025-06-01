@@ -26,56 +26,7 @@
     <div class="bg-light p-4 rounded shadow-sm mb-5">
       <p class="mb-0" style="white-space: pre-wrap;">{{ post.content }}</p>
     </div>
-
-    <div class="bg-white p-4 rounded shadow-sm">
-      <h5 class="mb-3">评论</h5>
-
-      <div v-if="comments.length">
-        <div
-          v-for="comment in comments.comments"
-          :key="comment.id"
-          class="d-flex border-bottom py-3"
-        >
-          <!-- 左侧头像 -->
-          <router-link
-            :to="`/users/${comment.author.user_id}`"
-            class="text-decoration-none"
-          >
-            <img
-              :src="comment.author.avatar"
-              alt="avatar"
-              class="rounded-circle me-3"
-              width="50"
-              height="50"
-            />
-          </router-link>
-
-          <!-- 右侧评论内容 -->
-          <div class="flex-grow-1">
-            <!-- 用户名和时间 -->
-            <div class="d-flex justify-content-between align-items-center">
-              <router-link
-                :to="`/users/${comment.author.user_id}`"
-                class="text-dark text-decoration-none"
-              >
-                <strong>{{ comment.author.user_name }}</strong>
-              </router-link>
-              <small class="text-muted">{{ formatDate(comment.created_at) }}</small>
-            </div>
-
-            <!-- 评论内容 -->
-            <p class="mb-0 mt-1">{{ comment.content }}</p>
-          </div>
-        </div>
-      </div>
-
-      <p v-else class="text-muted">暂无评论。</p>
-
-      <div class="mt-3">
-        <textarea v-model="newComment" class="form-control mb-2" rows="3" placeholder="写下你的评论..."></textarea>
-        <button @click="submitComment" class="btn btn-primary">发表评论</button>
-      </div>
-    </div>
+    <Comment :comments="comments" :postId="postId" @new-comment="handleNewComment" />
   </div>
 </template>
 
@@ -83,7 +34,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api'
-import { formatDate } from '@/utils/date'
+import Comment from '../comment/Comment.vue'
+
 
 const route = useRoute()
 const postId = route.params.post_id
@@ -91,7 +43,7 @@ const postId = route.params.post_id
 
 const post = ref({})
 const comments = ref([])
-const newComment = ref('')
+
 
 onMounted(async () => {
   // 获取帖子
@@ -106,22 +58,11 @@ onMounted(async () => {
 
 })
 
-async function submitComment() {
-  if (!newComment.value.trim()) return
-
-  const res = await api.createPostComment(postId, {
-    content: newComment.value
-  })
-
-  console.log("res: ", res)
-
-
-  const newC = await res.data 
-  comments.value.length += 1
+function handleNewComment(newC) {
+  // 假设 newC 是新评论对象
   comments.value.comments.push(newC)
-  newComment.value = ''
+  comments.value.length += 1
 }
-
 
 </script>
 
