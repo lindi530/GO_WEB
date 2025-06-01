@@ -9,8 +9,8 @@
 
       <!-- 中间用户名 + 时间 -->
       <div class="flex-grow-1">
-        <div class="fw-bold">{{ post.author.username }}</div>
-        <div class="text-muted small">{{ post.updated_at }}</div>
+        <div class="fw-bold">{{ post.author.user_name }}</div>
+        <div class="text-muted small">{{ formatDate(post.updated_at) }}</div>
       </div>
 
       <!-- 右侧标题 -->
@@ -37,6 +37,8 @@
 
 <script setup>
 import avatarImg from '../test/1.png'
+import { formatDate } from '@/utils/date'
+
 
 const props = defineProps({
   post: {

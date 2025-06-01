@@ -46,7 +46,7 @@ export default {
   getPostComments(postID) {
     return request.get(`posts/${postID}/comments`)
   },
-  createPost(postID, newPost) {
+  createPostComment(postID, newPost) {
     return request.post(`posts/${postID}/comments`, newPost)
   },
   // 这里按需继续扩展接口

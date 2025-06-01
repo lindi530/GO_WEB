@@ -26,8 +26,10 @@ const route = useRoute();
 const userId = computed(() => parseInt(route.params.userId));
 
 async function addPost(post) {
+  console.log("addPost: ")
   const res = await api.createPost(userId.value, { user_Id: userId.value, ...post });
   const newPost = res.data.post;
+  console.log("newPost: ", newPost)
   posts.value.unshift(newPost);
   if (typeof window !== 'undefined' && window.$toast) {
     window.$toast.success('Post created!');
