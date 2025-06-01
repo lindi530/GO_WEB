@@ -18,7 +18,7 @@ const mutations = {
     state.profile.avatar = avatar;
   },
   MODIFT_PROFILE(state, profile) {
-    state.profile.username = profile.username;
+    state.profile.user_name = profile.user_name;
     state.profile.email = profile.email;
     state.profile.quote = profile.quote;
   },

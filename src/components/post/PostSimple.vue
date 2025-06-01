@@ -3,13 +3,25 @@
     <!-- 卡片头部 -->
     <div class="card-header d-flex align-items-center justify-content-between">
       <!-- 左侧头像 -->
-      <div class="me-3">
-        <img :src="avatarImg" alt="头像" class="rounded-circle" width="40" height="40">
-      </div>
+      <router-link
+      :to="`/users/${post.author?.user_id}`"
+      class="d-flex align-items-center text-decoration-none text-dark"
+        >
+        <div class="me-3">
+          <img :src="post.author.avatar" alt="头像" class="rounded-circle" width="40" height="40">
+        </div>
+      </router-link>
 
       <!-- 中间用户名 + 时间 -->
       <div class="flex-grow-1">
-        <div class="fw-bold">{{ post.author.user_name }}</div>
+         <div class="d-flex align-items-center">
+          <router-link
+            :to="`/users/${post.author?.user_id}`"
+            class="text-decoration-none text-dark"
+          >
+            <strong>{{ post.author?.user_name }}</strong>
+          </router-link>
+        </div>
         <div class="text-muted small">{{ formatDate(post.updated_at) }}</div>
       </div>
 
@@ -36,7 +48,6 @@
 
 
 <script setup>
-import avatarImg from '../test/1.png'
 import { formatDate } from '@/utils/date'
 
 
