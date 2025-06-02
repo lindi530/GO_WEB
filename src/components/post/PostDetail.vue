@@ -26,7 +26,10 @@
     <div class="bg-light p-4 rounded shadow-sm mb-5">
       <p class="mb-0" style="white-space: pre-wrap;">{{ post.content }}</p>
     </div>
-    <Comment :comments="comments" :postId="postId" @new-comment="handleNewComment" />
+    <Comment :comments="comments" :postId="postId" 
+      @new-comment="handleNewComment"
+      @delete-comment="handleDeleteComment"
+    />
   </div>
 </template>
 
@@ -34,7 +37,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api'
-import Comment from '../comment/Comment.vue'
+import Comment from '../comment/CommentList.vue'
 
 
 const route = useRoute()
@@ -47,14 +50,9 @@ const comments = ref([])
 
 onMounted(async () => {
   // 获取帖子
-  const resp1 = await api.getPostByPostId(postId)
-  console.log("resp1: ", resp1)
-  post.value = resp1.data
-
-  // 获取评论
-  const resp2 = await api.getPostComments(postId)
-  console.log("resp2: ", resp2)
-  comments.value = resp2.data
+  const resp = await api.getPostByPostId(postId)
+  console.log("resp: ", resp)
+  post.value = resp.data
 
 })
 
@@ -62,6 +60,13 @@ function handleNewComment(newC) {
   // 假设 newC 是新评论对象
   comments.value.comments.push(newC)
   comments.value.length += 1
+}
+
+function handleDeleteComment(commentId) {
+  comments.value.comments = comments.value.comments.filter(
+    comment => comment.id !== commentId
+  );
+  comments.value.length -= 1;
 }
 
 </script>

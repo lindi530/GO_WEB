@@ -34,20 +34,29 @@ export default {
   checkFollowing(targetUserId) {
     return request.get(`/users/${targetUserId}/is_following`)
   },
-  followUser(targetUserID) {
-    return request.post(`/users/${targetUserID}/follow`)
+  followUser(targetUserId) {
+    return request.post(`/users/${targetUserId}/follow`)
   },
-  unFollowUser(targetUserID) {
-    return request.delete(`/users/${targetUserID}/follow`)
+  unFollowUser(targetUserId) {
+    return request.delete(`/users/${targetUserId}/follow`)
   },
-  getPostByPostId(postID) {
-    return request.get(`posts/${postID}`)
+  getPostByPostId(postId) {
+    return request.get(`posts/${postId}`)
   },
-  getPostComments(postID) {
-    return request.get(`posts/${postID}/comments`)
+  getPostComments(postId) {
+    return request.get(`posts/${postId}/comments`)
   },
-  createPostComment(postID, newPost) {
-    return request.post(`posts/${postID}/comments`, newPost)
+  createPostComment(postId, newPost) {
+    return request.post(`posts/${postId}/comments`, newPost)
+  },
+  likeComment(commentId) { 
+    return request.post(`comment/${commentId}/like`)
+  },
+  unlikeComment(commentId) {
+    return request.post(`comment/${commentId}/unlike`)
+  },
+  deleteComment(commentId) {
+    return request.delete(`posts/comments/${commentId}`)
   },
   // 这里按需继续扩展接口
 };
