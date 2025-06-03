@@ -57,7 +57,6 @@ const props = defineProps({
     required: true
   }
 })
-console.log("props.post: ", props.post)
 
 </script>
 

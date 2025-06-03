@@ -32,14 +32,21 @@
 
         <n-button quaternary circle type="info" @click="likeComment">
             <template #icon>
-            <img
-            :src="iconSrc"
-            alt="点赞"
-            width="16"
-            height="16"
-            />
+              <img
+              :src="iconSrc"
+              alt="点赞"
+              width="16"
+              height="16"
+              />
+              
             </template>
+            
         </n-button>
+
+        <span class="text-secondary" style="font-size: 0.875rem;">
+          {{ comment.likes }}
+        </span>
+        
         <!-- 点赞按钮 -->
     
         </div>
@@ -52,6 +59,7 @@
         >
         <i class="bi bi-trash"></i>
         </button>
+
     </div>
 
     <!-- 第二行：评论内容 -->
@@ -68,8 +76,10 @@ import { formatDate } from '@/utils/date'
 const props  = defineProps({
   comment: Object,
 })
+
+console.log("comment: ", props.comment)
+
 const emit = defineEmits(['update-comment', 'delete-comment'])
-// const emit2 = defineEmits(['delete-comment'])
 
 const iconUnlike = '/voteup-empty.png'
 const iconLike = '/voteup.png'
@@ -85,7 +95,7 @@ async function likeComment() {
         emit('update-comment', {
         id: props.comment.id,
         like: true,
-        // likes: props.comment.likes + 1
+        likes: props.comment.likes + 1
       })
     }
   } else {
@@ -94,12 +104,11 @@ async function likeComment() {
         emit('update-comment', {
         id: props.comment.id,
         like: false,
-        // likes: props.comment.likes - 1
+        likes: props.comment.likes - 1
       })
     }   
   } 
-//   event.currentTarget.blur()
-  
+
 }
 
 async function deleteComment(commentId) {
@@ -112,16 +121,4 @@ async function deleteComment(commentId) {
 </script>
 
 <style scoped>
-:deep(.n-button) {
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-:deep(.n-button:hover),
-:deep(.n-button:focus),
-:deep(.n-button:active),
-:deep(.n-button:focus-visible) {
-  box-shadow: none !important;
-  outline: none !important;
-}
 </style>

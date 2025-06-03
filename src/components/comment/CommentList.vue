@@ -44,7 +44,7 @@ function handleUpdateComment(updated) {
   const comment = comments.value.comments.find(c => c.id === updated.id)
   if (comment) {
     comment.like = updated.like
-    // comment.likes = updated.likes
+    comment.likes = updated.likes
   }
 }
 

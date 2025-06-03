@@ -29,7 +29,7 @@ export default {
       try {
         console.log("api response")
         const response = await api.getAllPosts();
-        console.log("response: ", response)
+        console.log("PostView response: ", response)
         if (response.code) throw new Error('Fetch failed');
         this.posts = response.data;
       } catch (error) {
