@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+import { registerRuntimeCompiler } from 'vue';
 
 export default {
   login(payload) {
@@ -57,6 +58,12 @@ export default {
   },
   deleteComment(commentId) {
     return request.delete(`posts/comments/${commentId}`)
+  },
+  validateAccessToken(userId) {
+    return request.get(`auth/validate/access_token/${userId}`)
+  },
+  validateRefreshToken(userId) {
+    return request.get(`auth/validate/refresh_token/${userId}`)
   },
   // 这里按需继续扩展接口
 };

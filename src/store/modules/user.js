@@ -10,9 +10,11 @@ const mutations = {
   },
   SET_ACCESSTOKEN(state, token) {
     state.accessToken = token;
+    localStorage.setItem('accessToken', token)
   },
   SET_PROFILE(state, user) {
     state.profile = user;
+    localStorage.setItem('user', JSON.stringify(user))
   },
   SET_PROFILE_AVATAR(state, avatar) {
     state.profile.avatar = avatar;
@@ -25,13 +27,15 @@ const mutations = {
   LOGOUT(state) {
     state.accessToken = '';
     state.profile = {};
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('user')
   }
 };
 
 const actions = {
-  logout({ commit }) {
-    commit('LOGOUT');
-  }
+  // logout({ commit }) {
+  //   commit('LOGOUT');
+  // }
 };
 
 const getters = {

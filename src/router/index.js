@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersProfileView.vue'
@@ -7,7 +7,6 @@ import UserList from '@/views/UserListView.vue'
 import Test from '@/components/test/Test.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
-
 
 const routes = [
   {
@@ -54,7 +53,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 

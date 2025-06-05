@@ -4,6 +4,8 @@ import store from './store'
 import router from './router'
 import './utils/request'
 import naive from 'naive-ui'
+import { restoreAuth } from './utils/auth'
 
+restoreAuth(store)
 
-createApp(App).use(router).use(naive).use(store).use(store).mount('#app')
+createApp(App).use(router).use(naive).use(store).mount('#app')

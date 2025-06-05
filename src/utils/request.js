@@ -14,7 +14,7 @@ function isFormData(data) {
 
 // 请求拦截器
 request.interceptors.request.use(config => {
-  const token = store.getters['user/accessToken']
+  const token = store.getters['user/accessToken'] || localStorage.getItem('accessToken')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
     refreshUserOnlineStatus(token)

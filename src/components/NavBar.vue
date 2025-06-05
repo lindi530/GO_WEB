@@ -126,7 +126,7 @@ export default {
     },
     logout() {
       // this.$router.push('/');
-      this.$store.dispatch('user/logout');
+      this.$store.commit('user/LOGOUT');
     },
     handleLoginSuccess() {
       this.loginVisible = false;

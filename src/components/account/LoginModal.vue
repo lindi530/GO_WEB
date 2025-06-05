@@ -96,11 +96,16 @@ export default {
           this.errorMessage = loginRes.message
           return
         }
+
+        
+
         const { accessToken, refreshToken, user } = loginRes.data;
+
         // 存储到 Vuex
         this.$store.commit('user/SET_ACCESSTOKEN', accessToken);
         this.$store.commit('user/SET_REFRESHTOKEN', refreshToken);
         this.$store.commit('user/SET_PROFILE', user);
+
         console.log("user: ", loginRes.data)
         this.$emit('login-success', user);
       } catch(err) {
