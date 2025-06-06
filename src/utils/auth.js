@@ -6,11 +6,13 @@ export async function restoreAuth(store) {
 
     try {
         const userProfile = JSON.parse(user)
-        const res1 = await api.validateAccessToken(userProfile.user_id)
+        const res1 = await api.validateAccessToken()
         if (res1.code == 0) {
             login(store, accessToken, userProfile)
         } else {
-            const res2 = await api.validateRefreshToken(userProfile.user_id)
+            const res2 = await api.validateRefreshToken({
+                refresh_token: localStorage.getItem('refresh_token')
+            })
             if (res2.code == 0) {
                 login(store, accessToken, userProfile)
             } else {

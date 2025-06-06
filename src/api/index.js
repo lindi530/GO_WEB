@@ -1,5 +1,4 @@
 import request from '@/utils/request';
-import { registerRuntimeCompiler } from 'vue';
 
 export default {
   login(payload) {
@@ -59,17 +58,20 @@ export default {
   deleteComment(commentId) {
     return request.delete(`posts/comments/${commentId}`)
   },
-  validateAccessToken(userId) {
-    return request.get(`auth/validate/access_token/${userId}`)
+  validateAccessToken() {
+    return request.get(`auth/validate/access_token`)
   },
-  validateRefreshToken(userId) {
-    return request.get(`auth/validate/refresh_token/${userId}`)
+  validateRefreshToken(formData) {
+    return request.post(`auth/validate/refresh_token`, formData)
   },
   likePost(postId) {
     return request.post(`posts/${postId}/like`)
   },
   unLikePost(postId) {
     return request.post(`posts/${postId}/unlike`)
+  },
+  onlineState() {
+    return request.post(`users/online`)
   },
   // 这里按需继续扩展接口
 };

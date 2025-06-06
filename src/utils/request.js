@@ -2,6 +2,7 @@
 import axios from 'axios'
 import store from '@/store'
 import router from '@/router'
+import api from '@/api'
 
 const request = axios.create({
   baseURL: process.env.VUE_APP_API_BASE || 'http://localhost:8000',
@@ -27,22 +28,14 @@ request.interceptors.request.use(config => {
 }, error => Promise.reject(error))
 
 let lastPing = 0
-function refreshUserOnlineStatus(token) {
+async function refreshUserOnlineStatus(token) {
   // 简单 ping，后端用来更新 Redis TTL
   const now = Date.now()
   if (now - lastPing < 1 * 1000) return
   lastPing = now
 
   if (!token) return
-  fetch('/users/online', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + token,
-    },
-    body: 'ping',
-  }).catch(err => {
-    console.warn('[Ping Failed]', err)
-  })
+  await api.onlineState()
 }
 
 // 响应拦截器
