@@ -65,5 +65,11 @@ export default {
   validateRefreshToken(userId) {
     return request.get(`auth/validate/refresh_token/${userId}`)
   },
+  likePost(postId) {
+    return request.post(`posts/${postId}/like`)
+  },
+  unLikePost(postId) {
+    return request.post(`posts/${postId}/unlike`)
+  },
   // 这里按需继续扩展接口
 };
