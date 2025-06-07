@@ -6,6 +6,8 @@ import './utils/request'
 import naive from 'naive-ui'
 import { restoreAuth } from './utils/auth'
 
-restoreAuth(store)
+restoreAuth(store).then(() => { 
+    createApp(App).use(router).use(naive).use(store).mount('#app')
+})
 
-createApp(App).use(router).use(naive).use(store).mount('#app')
+

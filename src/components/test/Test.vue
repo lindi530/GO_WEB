@@ -1,14 +1,15 @@
 <template>
   <div class="container my-4">
-    <UserFeed/>
+    <UserChat/>
   </div>
 </template>
 
 <script>
 import UserFeed from './UserFeed.vue'
+import UserChat from './UserChat.vue';
 
 export default {
-  components: { UserFeed},
+  components: { UserChat },
   name: "Test",
 
 }

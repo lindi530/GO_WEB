@@ -35,7 +35,6 @@ export default {
       } catch (error) {
             console.log("error")
          // 网络层抛出的错误，axios 会把它包装成 AxiosError
-            console.error("Fetch error (toJSON):", error.toJSON());
             if (error.response) {
             // 服务端返回了非 2xx 状态
             console.error("  response.data:", error.response.data);

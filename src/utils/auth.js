@@ -8,6 +8,7 @@ export async function restoreAuth(store) {
         const userProfile = JSON.parse(user)
         const res1 = await api.validateAccessToken()
         if (res1.code == 0) {
+            console.log("validateAccessToken success: ", accessToken)
             login(store, accessToken, userProfile)
         } else {
             const res2 = await api.validateRefreshToken({

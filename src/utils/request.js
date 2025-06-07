@@ -17,6 +17,7 @@ function isFormData(data) {
 request.interceptors.request.use(config => {
   const token = store.getters['user/accessToken'] || localStorage.getItem('accessToken')
   if (token) {
+    console.log("postToken: ", token)
     config.headers.Authorization = `Bearer ${token}`
     refreshUserOnlineStatus(token)
   }
