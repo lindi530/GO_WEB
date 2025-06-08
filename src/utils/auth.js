@@ -1,4 +1,6 @@
 import api from "@/api"
+import { initWebSocket } from '@/composables/useWebSocket'
+
 export async function restoreAuth(store) {
     const accessToken = localStorage.getItem('accessToken')
     const user = localStorage.getItem('user')
@@ -10,12 +12,15 @@ export async function restoreAuth(store) {
         if (res1.code == 0) {
             console.log("validateAccessToken success: ", accessToken)
             login(store, accessToken, userProfile)
+
+            initWebSocket(accessToken)
         } else {
             const res2 = await api.validateRefreshToken({
                 refresh_token: localStorage.getItem('refresh_token')
             })
             if (res2.code == 0) {
                 login(store, accessToken, userProfile)
+                initWebSocket(accessToken)
             } else {
                 logout(store)
             }

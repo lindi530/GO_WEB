@@ -1,67 +1,123 @@
 <template>
-  <div style="width: 30%; border-right: 1px solid #ddd; padding: 10px; overflow-y: auto;">
-    <n-list bordered>
-      <n-list-item
-        v-for="user in followedUsers"
-        :key="user.user_id"
-        :class="['cursor-pointer', user.user_id === selectedUserId ? 'bg-primary text-white' : '']"
-        @click="$emit('select', user.user_id)"
-      >
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <!-- 左侧：头像和昵称 -->
-          <div style="display: flex; align-items: center;">
-            <img
-              :src="user.avatar"
-              class="rounded-circle me-3"
-              alt="avatar"
-              width="42"
-              height="42"
-            />
-            <span>{{ user.user_name }}</span>
-          </div>
-          <div v-if="user.hasUnread" style="width: 8px; height: 8px; border-radius: 50%; background: red;"></div>
-
-          <!-- 右侧：在线状态 -->
-          <div
-            :class="user.online_state ? 'text-success' : 'text-muted'"
-            style="display: flex; align-items: center; font-size: 0.9rem;"
-          >
+  <n-infinite-scroll style="height: 68vh" :distance="10" @load="handleLoad">
+    <div
+      v-for="user in followedUsers"
+      :key="user.user_id"
+      :class="['user-item-wrapper', user.user_id === selectedUserId ? 'selected' : '']"
+      @click="$emit('select', user.user_id)"
+    >
+      <div class="user-item">
+        <div class="user-info">
+          <img :src="user.avatar" class="avatar" alt="avatar" />
+          <span class="user-name">{{ user.user_name }}</span>
+        </div>
+        <div class="user-meta">
+          <div v-if="user.hasUnread" class="unread-dot"></div>
+          <div :class="['user-status', user.online_state ? 'online' : 'offline']">
             {{ user.online_state ? '在线' : '离线' }}
-            <i
-              :class="user.online_state ? 'bi bi-check-circle-fill' : 'bi bi-x-circle'"
-              class="ms-1"
-            ></i>
+            <i :class="user.online_state ? 'bi bi-check-circle-fill' : 'bi bi-x-circle'"></i>
           </div>
         </div>
-      </n-list-item>
-    </n-list>
-  </div>
+      </div>
+    </div>
+  </n-infinite-scroll>
 </template>
 
 <script setup>
+import { ref } from "vue"
+
 const props = defineProps({
-  followedUsers: {
-    type: Array,
-    required: true
-  },
-  selectedUserId: {
-    type: Number,
-    required: true
-  }
+  followedUsers: Array,
+  selectedUserId: Number,
 })
+
+const count = ref(6)
+
+const handleLoad = () => {
+  count.value += 1
+}
 </script>
 
 <style scoped>
-.cursor-pointer {
+.follow-list {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.user-item-wrapper {
   cursor: pointer;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
 }
-.bg-primary {
-  background-color: #0eb840 !important;
+
+.user-item-wrapper:hover {
+  background-color: #f5f5f5;
 }
-.text-white {
-  color: white !important;
+
+.user-item-wrapper.selected {
+  background-color: #9ed048;
+  color: #ffffff;
 }
-.n-list-item:hover {
-  background-color: #f0f0f0;
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.user-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: red;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  gap: 4px;
+}
+
+.user-status.online {
+  color: #0eb840;
+}
+
+.user-status.offline {
+  color: #999999;
 }
 </style>

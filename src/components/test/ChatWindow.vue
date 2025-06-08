@@ -1,39 +1,36 @@
 <template>
-  <div style="width: 70%; padding: 10px; display: flex; flex-direction: column;">
-    <!-- 消息显示区 -->
-    <div ref="container" class="scrollable border p-3 mb-3 bg-light rounded" style="flex: 1; overflow-y: auto;">
-      <div v-for="(msg, index) in messages" :key="index" class="mb-3">
-        <!-- 自己发送的消息 -->
-        <div v-if="msg.from === userId" class="message-self mb-3">
-        <div class="bubble-self">{{ msg.content }}</div>
-        <img :src="userAvatar" class="avatar ms-2" />
-        </div>
-
-        <!-- 对方发送的消息 -->
-        <div v-else class="message-other mb-3">
+    <div class="chat-header">
+      <strong>与 {{ receiverName }} 聊天中</strong>
+    </div>
+      <div class="chat-container" ref="scrollContainer">
+      <div class="chat-messages">
+        <div v-for="(msg, index) in messages" :key="index" class="message-container">
+          <div v-if="msg.from === userId" class="message-self">
+            <div class="bubble-self">{{ msg.content }}</div>
+            <img :src="userAvatar" class="avatar ms-2" />
+          </div>
+          <div v-else class="message-other">
             <img :src="receiverAvatar" class="avatar me-2" />
             <div class="bubble-other">{{ msg.content }}</div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- 输入框 -->
-    <div class="mt-2" style="display: flex; gap: 8px;">
-    <n-input
+   </div>
+    <div class="chat-input">
+      <n-input
         v-model:value="localMessage"
         placeholder="请输入消息..."
         @keydown.enter="$emit('send')"
         @input="val => $emit('update:newMessage', val)"
-        style="flex: 1;"
-    />
-    <n-button type="primary" @click="$emit('send')">发送</n-button>
+        style="flex: 1"
+      />
+      <n-button type="primary" @click="$emit('send')">发送</n-button>
     </div>
-  </div>
+
 </template>
 
 <script setup>
-import api from '@/api'
-import { computed, ref, nextTick, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 
 const props = defineProps({
   messages: Array,
@@ -41,52 +38,78 @@ const props = defineProps({
   userId: Number,
   userAvatar: String,
   receiverId: Number,
+  receiverName: String,
   receiverAvatar: String
 })
 
-const localMessage = computed({
-  get: () => props.newMessage,
-  set: (val) => {}
-})
+const scrollContainer = ref(null)
 
-
-
-
-
-const container = ref(null)
-
+// 100% 有效的滚动函数
 const scrollToBottom = () => {
+  const container = scrollContainer.value
+  if (!container) return
+  
+  // 强制样式确保可滚动
+  container.style.overflowY = 'auto'
+  container.style.display = 'block'
+  
+  // 双重保险滚动
   nextTick(() => {
-    if (container.value) {
-      container.value.scrollTop = container.value.scrollHeight
-    }
+    container.scrollTop = container.scrollHeight
+    setTimeout(() => {
+      container.scrollTop = container.scrollHeight
+      // 最终极的保证方案
+      if (container.scrollTop < container.scrollHeight - container.clientHeight) {
+        container.style.height = 'auto'
+        container.scrollTop = container.scrollHeight
+      }
+    }, 50)
   })
 }
 
-defineExpose({
-  scrollToBottom
+watch(() => props.messages, scrollToBottom, { deep: true, immediate: true })
+
+const localMessage = computed({
+  get: () => props.newMessage,
+  set: () => {}
 })
 
 </script>
 
 <style scoped>
-.scrollable {
-  overflow-y: auto;
-  background-color: #f5f5f5;
+
+.n-infinite-scroll {
+  overflow-y: auto !important;
 }
 
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid #ccc; /* 添加边框 */
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1); /* 可选：轻微阴影增强层次感 */
-}
-
-.message-self,
-.message-other {
+/* 顶部固定高 */
+.chat-header {
+  height: 40px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
+  padding: 0 12px;
+}
+
+.chat-container {
+  height: 58vh;
+  overflow-y: scroll !important; /* 强制显示滚动条 */
+  position: relative;
+}
+
+.chat-messages {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.message-container {
+  margin-bottom: 16px;
+}
+.message-self, .message-other {
+  display: flex;
+  align-items: flex-end;
   max-width: 100%;
 }
 
@@ -98,28 +121,41 @@ defineExpose({
   justify-content: flex-start;
 }
 
-.bubble-self {
-  background-color: #95ec69;
-  color: black;
+.bubble-self, .bubble-other {
+  max-width: 70%;
   padding: 8px 12px;
-  border-radius: 16px;
-  max-width: 60%;
+  border-radius: 12px;
   word-wrap: break-word;
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.5;
+}
+
+.bubble-self {
+  background-color: #0eb840;
+  color: white;
+  border-bottom-right-radius: 0;
 }
 
 .bubble-other {
-  background-color: #ffffff;
-  padding: 8px 12px;
-  border-radius: 16px;
-  max-width: 60%;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.5;
+  background-color: white;
   border: 1px solid #ddd;
+  border-bottom-left-radius: 0;
 }
 
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 底部输入区域固定高 */
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+  flex-shrink: 0;
+  height: 50px;
+  box-sizing: border-box;
+}
 </style>
