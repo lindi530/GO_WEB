@@ -10,9 +10,9 @@
         :messages="messages"
         :user-id="userId"
         :user-avatar="userAvatar"
+        :receiver-id="selectedUserId"
         :receiver-avatar="receiverAvatar"
-        :new-message="newMessage"
-        @update:new-message="val => newMessage = val"
+        v-model:new-message="newMessage"
         @send="handleSendMessage"
         ref="chatRef"
       />
@@ -35,7 +35,7 @@ const toast = useMessage()
 const showModal = ref(true)
 const followedUsers = ref([])
 const selectedUserId = ref(null)
-const messages = ref([])
+const messageMap = ref({})
 const newMessage = ref('')
 const ws = ref(null)
 
@@ -55,15 +55,32 @@ const initWebSocket = () => {
   ws.value.onmessage = (event) => {
     try {
       const msg = JSON.parse(event.data)
-      console.log("onmessage: ", msg)
-      // 添加消息类型检查
-      if (msg.type === 'chat') {
-        messages.value.push(msg)
-        nextTick(() => chatRef.value?.scrollToBottom())
-      } else if (msg.type === 'notification') {
-        // 处理通知类消息
-        toast.info(msg.content)
+
+      if (!messageMap.value[msg.from]) {
+        messageMap.value[msg.from] = []
       }
+
+      // 添加到对应用户的消息记录
+      if (msg.type === 'chat') {
+        messageMap.value[msg.from].push(msg)
+      }
+      // 添加消息类型检查
+      console.log("Msg: ", msg)
+      console.log("selectedUserId.value: ", selectedUserId.value)
+      if (msg.from === selectedUserId.value) {
+        if (msg.type === 'chat') {
+          
+          nextTick(() => chatRef.value?.scrollToBottom())
+        } else if (msg.type === 'notification') {
+          // 处理通知类消息
+          toast.info(msg.content)
+        }
+      } else {
+        // 🔔 比如设置这个用户为“有未读消息”
+        const user = followedUsers.value.find(u => u.user_id === msg.from)
+        if (user) user.hasUnread = true  // 你需要维护这个字段
+      }
+      
     } catch (e) {
       console.error('WebSocket 消息解析错误:', e)
     }
@@ -78,11 +95,25 @@ const initWebSocket = () => {
   }
 }
 
-const handleSelectUser = (id) => {
+const handleSelectUser = async (id) => {
   selectedUserId.value = id
-  messages.value = []
+
+  const user = followedUsers.value.find(u => u.user_id === id)
+  if (user) user.hasUnread = false
+
+  if (!messageMap.value[id]) {
+    console.log("发送请球")
+    const res = await api.getMessageByTargetId(id)
+    if (res.code === 0) {
+      messageMap.value[id] = res.data
+    }
+  }
   initWebSocket()
 }
+
+const messages = computed(() => {
+  return messageMap.value[selectedUserId.value] || []
+})
 
 const handleSendMessage = () => {
   if (!newMessage.value || !selectedUserId.value) return
@@ -94,9 +125,12 @@ const handleSendMessage = () => {
     content: newMessage.value,
   }
 
+  if (!messageMap.value[selectedUserId.value]) {
+    messageMap.value[selectedUserId.value] = []
+  }
 
   ws.value?.send(JSON.stringify(msg))
-  messages.value.push(msg)
+  messageMap.value[selectedUserId.value].push(msg)
   newMessage.value = ''
   nextTick(() => chatRef.value?.scrollToBottom())
 }
@@ -105,7 +139,10 @@ onMounted(async () => {
   const resp = await api.getUserList()
   if (resp.code === 0) {
     console.log("followedUsers: ", resp.data)
-    followedUsers.value = resp.data.userList
+    followedUsers.value = resp.data.userList.map(user => ({
+      ...user,
+      hasUnread: false
+    }))
   }  
 })
 

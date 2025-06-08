@@ -73,5 +73,8 @@ export default {
   onlineState() {
     return request.post(`users/online`)
   },
+  getMessageByTargetId(targetId) { 
+    return request.get(`message/${targetId}`)
+  },
   // 这里按需继续扩展接口
 };

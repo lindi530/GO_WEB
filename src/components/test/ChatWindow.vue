@@ -32,13 +32,15 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick } from 'vue'
+import api from '@/api'
+import { computed, ref, nextTick, watch } from 'vue'
 
 const props = defineProps({
   messages: Array,
   newMessage: String,
   userId: Number,
   userAvatar: String,
+  receiverId: Number,
   receiverAvatar: String
 })
 
@@ -46,6 +48,10 @@ const localMessage = computed({
   get: () => props.newMessage,
   set: (val) => {}
 })
+
+
+
+
 
 const container = ref(null)
 
