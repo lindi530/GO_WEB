@@ -4,6 +4,9 @@ export default {
   login(payload) {
     return request.post('/users/login', payload);
   },
+  logout(formData) {
+    return request.post('/users/logout', formData)
+  },
   upLoadAvatar(userId, formData) {
     return request.post(`/users/${userId}/modify_avatar`, formData);
   },

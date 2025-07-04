@@ -73,6 +73,7 @@ const login = async () => {
       return
     }
     const { accessToken: at, refreshToken, user } = res.data
+    console.log("loginData: ", res.data)
     // commit to store
     store.commit('user/SET_ACCESSTOKEN', at)
     store.commit('user/SET_REFRESHTOKEN', refreshToken)

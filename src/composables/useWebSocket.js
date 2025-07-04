@@ -44,7 +44,8 @@ export function initWebSocket(token) {
 }
 
 export function sendMessage(msg) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+      console.log("Sending message:", JSON.stringify(msg))
       ws.send(JSON.stringify(msg))
     } else {
     console.warn('[WebSocket] not connected')
@@ -63,6 +64,7 @@ export function useWebSocketContext() {
 async function getFollowedUsers() {
   const resp = await api.getUserList();
   if (resp.code === 0) {
+    console.log("getFollowedUsers")
     followedUsers.value = resp.data.userList.map(u => ({ ...u, hasUnread: false }));
   }
 }

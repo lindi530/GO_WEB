@@ -26,8 +26,10 @@ const mutations = {
   },
   LOGOUT(state) {
     state.accessToken = '';
+    state.refreshToken = '';
     state.profile = {};
     localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
   }
 };
@@ -41,6 +43,7 @@ const actions = {
 const getters = {
   isLogin: state => !!state.accessToken,
   accessToken: state => state?.accessToken,
+  refreshToken: state => state?.refreshToken,
   userName: state => state.profile?.user_name || '',
   userQuote: state => state.profile?.quote || '',
   userEmail: state => state.profile?.email || '',
@@ -48,7 +51,6 @@ const getters = {
   userAvatar: state => state.profile?.avatar || 'https://cdn.acwing.com/media/user/profile/photo/89646_sm_28e4eb758d.jpg',
   userId: state => state.profile?.user_id || '', 
   userInfo: state => state.profile,
-
 };
 
 export default {

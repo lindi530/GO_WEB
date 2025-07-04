@@ -16,10 +16,13 @@ function isFormData(data) {
 // 请求拦截器
 request.interceptors.request.use(config => {
   const token = store.getters['user/accessToken'] || localStorage.getItem('accessToken')
+  console.log("onlineState: ", token)
   if (token) {
     console.log("postToken: ", token)
     config.headers.Authorization = `Bearer ${token}`
-    refreshUserOnlineStatus(token)
+    if (!config.url.includes('/logout')) {
+      refreshUserOnlineStatus(token)
+    }
   }
   if (isFormData(config.data)) {
     delete config.headers['Content-Type']

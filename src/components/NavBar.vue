@@ -81,11 +81,18 @@
 <script>
 import LoginModal from './account/LoginModal.vue';
 import RegisterModal from './account/RegisterModal.vue';
+import api from '@/api';
 
 export default {
   name: 'NavBar',
   components: { LoginModal, RegisterModal },
   computed: {
+    refreshToken() {
+      return this.$store.getters['user/refreshToken']
+    },
+    accessToken() {
+      return this.$store.getters['user/accessToken']
+    },
     isLogin() {
       return this.$store.getters['user/isLogin'];
     },
@@ -124,9 +131,22 @@ export default {
         this.$router.push(item.to);
       }
     },
-    logout() {
+    async logout() {
       // this.$router.push('/');
-      this.$store.commit('user/LOGOUT');
+      console.log("user Logout")
+      try {
+        const resp = await api.logout({
+          refresh_token: this.refreshToken
+        })
+        if (resp.code === 0) {
+          this.$store.commit('user/SET_ACCESSTOKEN', '')
+          this.$store.commit('user/SET_REFRESHTOKEN', '')
+          this.$store.commit('user/SET_PROFILE', {})
+          this.$store.commit('user/LOGOUT');
+        }
+      } catch (err) {
+        console.error("登出失败：", err)
+      }
     },
     handleLoginSuccess() {
       this.loginVisible = false;
