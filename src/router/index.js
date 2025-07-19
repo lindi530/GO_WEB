@@ -5,6 +5,7 @@ import UsersView from '../views/UsersProfileView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserListView.vue'
 import Test from '@/components/test/Test.vue'
+import Chat from '@/components/chat/zbase.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
 
@@ -23,6 +24,11 @@ const routes = [
     path: '/users/userList',
     name: 'UserList',
     component: UserList
+  },
+  {
+    path: '/users/chat',
+    name: 'Chat',
+    component: Chat,
   },
   {
     path: '/users/:userId',

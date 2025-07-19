@@ -50,7 +50,6 @@
 <script setup>
 import { formatDate } from '@/utils/date'
 
-
 const props = defineProps({
   post: {
     type: Object,

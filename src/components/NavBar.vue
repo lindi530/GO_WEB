@@ -1,7 +1,8 @@
 <template>
+  <ChatModel v-model:visible="chatVisible" />
   <nav class="navbar navbar-expand-md navbar-dark bg-primary bg-gradient shadow-sm py-2">
     <div class="container">
-      <router-link class="navbar-brand fw-bold fs-4" to="/">My Blog</router-link>
+      <RouterLink class="navbar-brand fw-bold fs-4" to="/">My Blog</RouterLink>
       <button class="navbar-toggler" @click="isOpen = !isOpen" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -15,7 +16,6 @@
           </li>
         </ul>
 
-        <!-- 登录后用户菜单 -->
         <ul class="navbar-nav ms-auto mb-0">
           <template v-if="isLogin">
             <li class="nav-item dropdown">
@@ -26,28 +26,19 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <img
-                :src="userAvatar"
-                alt="Avatar"
-                class="rounded-circle me-2"
-                width="28"
-                height="28"
-              />
+                <img :src="userAvatar" alt="Avatar" class="rounded-circle me-2" width="28" height="28" />
                 {{ userName }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end shadow animated-dropdown">
                 <li>
-                  <router-link
-                    class="dropdown-item"
-                    :to="`/users/${$store.getters['user/userId']}`"
-                  >
+                  <RouterLink class="dropdown-item" :to="`/users/${userId}`">
                     <i class="bi bi-person me-2"></i> 用户信息
-                  </router-link>
+                  </RouterLink>
                 </li>
                 <li>
-                  <router-link class="dropdown-item" to="/user/profile">
+                  <RouterLink class="dropdown-item" to="/user/profile">
                     <i class="bi bi-gear me-2"></i> 设置
-                  </router-link>
+                  </RouterLink>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
@@ -58,8 +49,6 @@
               </ul>
             </li>
           </template>
-
-          <!-- 未登录状态 -->
           <template v-else>
             <li class="nav-item">
               <a href="#" class="nav-link px-3" @click.prevent="loginVisible = true">登录</a>
@@ -77,96 +66,78 @@
   </nav>
 </template>
 
-
-<script>
+<script setup>
+import { ref, computed, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import LoginModal from './account/LoginModal.vue';
 import RegisterModal from './account/RegisterModal.vue';
+import ChatModel from './chat/UserChat.vue'
 import api from '@/api';
 
-export default {
-  name: 'NavBar',
-  components: { LoginModal, RegisterModal },
-  computed: {
-    refreshToken() {
-      return this.$store.getters['user/refreshToken']
-    },
-    accessToken() {
-      return this.$store.getters['user/accessToken']
-    },
-    isLogin() {
-      return this.$store.getters['user/isLogin'];
-    },
-    userName() {
-      return this.$store.getters['user/userName'];
-    },
-    userId() {
-      return this.$store.getters['user/userId']; // 你需要在 user 模块中定义这个 getter
-    },
-    userAvatar() {
-      return this.$store.getters['user/userAvatar'] || '/default-avatar.png';
-    },
-    leftLinks() {
-      const links = [
-        { label: '首页', to: '/' },
-        { label: '帖子列表', to: '/posts' },  
-        { label: '用户信息', to: 'user-info' }, // 默认空，点击时再动态判断跳转
-        { label: '用户列表', to: '/users/userList'},
-        { label: '测试', to: '/test'}
-      ];
-      return links;
+const router = useRouter();
+const store = useStore();
+
+const isOpen = ref(false);
+const loginVisible = ref(false);
+const registerVisible = ref(false);
+const chatVisible = ref(false);
+const pendingRoute = ref(null);
+
+const refreshToken = computed(() => store.getters['user/refreshToken']);
+const accessToken = computed(() => store.getters['user/accessToken']);
+const isLogin = computed(() => store.getters['user/isLogin']);
+const userName = computed(() => store.getters['user/userName']);
+const userId = computed(() => store.getters['user/userId']);
+const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png');
+
+const leftLinks = computed(() => [
+  { label: '首页', to: '/' },
+  { label: '帖子列表', to: '/posts' },  
+  { label: '用户信息', to: '/user-info' },
+  { label: '用户列表', to: '/users/userList' },
+  { label: '聊天', to: '/users/chat'},
+  { label: '测试', to: '/test'}
+]);
+
+function handleLinkClick(item) {
+  if (item.label === '用户信息') {
+    if (isLogin.value && userId.value) {
+      router.push(`/users/${userId.value}`);
+    } else {
+      loginVisible.value = true;
+      pendingRoute.value = `/users/${userId.value}`;
     }
-  },
-  methods: {
-    handleLinkClick(item) {
-      if (item.label === '用户信息') {
-        console.log("用户信息：", this.userId)
-        if (this.isLogin && this.userId) {
-          this.$router.push(`/users/${this.userId}`);
-          console.log("已登录")
-        } else {
-          this.loginVisible = true;
-          this.pendingRoute = `/users/${this.userId}`;// 标记为用户信息页
-        }
-      } else {
-        this.$router.push(item.to);
-      }
-    },
-    async logout() {
-      // this.$router.push('/');
-      console.log("user Logout")
-      try {
-        const resp = await api.logout({
-          refresh_token: this.refreshToken
-        })
-        if (resp.code === 0) {
-          this.$store.commit('user/SET_ACCESSTOKEN', '')
-          this.$store.commit('user/SET_REFRESHTOKEN', '')
-          this.$store.commit('user/SET_PROFILE', {})
-          this.$store.commit('user/LOGOUT');
-        }
-      } catch (err) {
-        console.error("登出失败：", err)
-      }
-    },
-    handleLoginSuccess() {
-      this.loginVisible = false;
-      this.$nextTick(() => {
-        if (this.pendingRoute && this.userId) {
-          this.$router.push(`/users/${this.userId}`);
-          this.pendingRoute = null;
-        }
-      });
-    }
-  }, 
-  data() {
-    return {
-      isOpen: false,
-      loginVisible: false,
-      registerVisible: false,
-      pendingRoute: null
-    };
+  } else if (item.label === '聊天') {
+    chatVisible.value = true;
+   } else {
+    router.push(item.to);
   }
-};
+}
+
+async function logout() {
+  try {
+    const resp = await api.logout({ refresh_token: refreshToken.value });
+    if (resp.code === 0) {
+      store.commit('user/SET_ACCESSTOKEN', '');
+      store.commit('user/SET_REFRESHTOKEN', '');
+      store.commit('user/SET_PROFILE', {});
+      store.commit('user/LOGOUT');
+    }
+  } catch (err) {
+    console.error("登出失败：", err);
+  }
+}
+
+function handleLoginSuccess() {
+  loginVisible.value = false;
+  nextTick(() => {
+    if (pendingRoute.value && userId.value) {
+      router.push(`/users/${userId.value}`);
+      pendingRoute.value = null;
+    }
+  });
+}
 </script>
 
 <style scoped>
@@ -180,6 +151,7 @@ export default {
 .animated-dropdown {
   animation: fadeInDown 0.2s ease-out;
 }
+
 .navbar-dark .nav-link,
 .user-menu,
 .dropdown-item {

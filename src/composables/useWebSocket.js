@@ -62,9 +62,10 @@ export function useWebSocketContext() {
 }
 
 async function getFollowedUsers() {
-  const resp = await api.getUserList();
+  const resp = await api.getFollowUserList();
   if (resp.code === 0) {
     console.log("getFollowedUsers")
-    followedUsers.value = resp.data.userList.map(u => ({ ...u, hasUnread: false }));
+    console.log(resp.data.followUserList)
+    followedUsers.value = resp.data.followUserList.map(u => ({ ...u, hasUnread: false }));
   }
 }

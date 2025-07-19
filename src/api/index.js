@@ -79,5 +79,8 @@ export default {
   getMessageByTargetId(targetId) { 
     return request.get(`message/${targetId}`)
   },
+  getFollowUserList() {
+    return request.get(`follow/userlist`)
+  },
   // 这里按需继续扩展接口
 };
