@@ -138,6 +138,7 @@ function handleLoginSuccess() {
     }
   });
 }
+
 </script>
 
 <style scoped>

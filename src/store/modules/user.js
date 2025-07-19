@@ -7,6 +7,7 @@ const state = () => ({
 const mutations = {
   SET_REFRESHTOKEN(state, token) {
     state.refreshToken = token;
+    localStorage.setItem('refreshToken', token)
   },
   SET_ACCESSTOKEN(state, token) {
     state.accessToken = token;

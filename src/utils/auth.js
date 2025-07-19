@@ -16,9 +16,10 @@ export async function restoreAuth(store) {
             initWebSocket(accessToken)
         } else {
             const res2 = await api.validateRefreshToken({
-                refresh_token: localStorage.getItem('refresh_token')
+                refresh_token: localStorage.getItem('refreshToken')
             })
             if (res2.code == 0) {
+                accessToken = res2.data.accessToken
                 login(store, accessToken, userProfile)
                 initWebSocket(accessToken)
             } else {
@@ -39,5 +40,6 @@ function login(store, accessToken, userProfile) {
 function logout(store) {
     store.commit('user/LOGOUT')
     localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
 }
