@@ -1,7 +1,5 @@
 <template>
-  <div class="container my-4">
-    <UserChat/>
-  </div>
+  <UserChat/> 
 </template>
 
 <script>

@@ -159,12 +159,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .floating-chat-window {
+  width: 60vw;
+  height: 70vh;
   position: fixed;
-  z-index: 9999;
-  width: 80vw;
-  max-width: 1200px;
-  height: 80vh;
-  max-height: 800px;
+  right: 40px;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;  
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -181,13 +182,12 @@ onBeforeUnmount(() => {
 
 .chat-layout {
   display: flex;
-  flex: 1;
   height: 100%;
   overflow: hidden;
 }
 
 .left-sidebar {
-  width: 250px;
+  width: 12vw;
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -200,5 +200,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;    /* ✅ 关键！允许子元素收缩 */
 }
 </style>

@@ -1,15 +1,8 @@
 <template>
-  <!-- <div class="container my-4">
-    <UserChat/>
-  </div> -->
+    <!-- <ChatFloatingWindow v-if="showChat" @close="showChat = false" /> -->
 </template>
 
-<script>
-// import UserChat from '../chat/UserChat.vue';
+<script setup>
+// import ChatFloatingWindow from './ChatFloatingWindow.vue'
 
-// export default {
-//   components: { UserChat },
-//   name: "Test",
-
-// }
 </script>

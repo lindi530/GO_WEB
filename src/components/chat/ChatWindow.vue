@@ -1,21 +1,31 @@
 <template>
+  <div class="chat-wrapper">
+    <!-- 顶部栏 -->
     <div class="chat-header">
       <strong>与 {{ receiverName }} 聊天中</strong>
     </div>
-      <div class="chat-container" ref="scrollContainer">
+
+    <!-- 聊天内容区域 -->
+    <div class="chat-body" ref="scrollContainer">
       <div class="chat-messages">
-        <div v-for="(msg, index) in messages" :key="index" class="message-container">
+        <div
+          v-for="(msg, index) in messages"
+          :key="index"
+          class="message-container"
+        >
           <div v-if="msg.from === userId" class="message-self">
             <div class="bubble-self">{{ msg.content }}</div>
-            <img :src="userAvatar" class="avatar ms-2" />
+            <img :src="userAvatar" class="avatar" />
           </div>
           <div v-else class="message-other">
-            <img :src="receiverAvatar" class="avatar me-2" />
+            <img :src="receiverAvatar" class="avatar" />
             <div class="bubble-other">{{ msg.content }}</div>
           </div>
         </div>
       </div>
-   </div>
+    </div>
+
+    <!-- 底部输入框 -->
     <div class="chat-input">
       <n-input
         v-model:value="localMessage"
@@ -26,7 +36,7 @@
       />
       <n-button type="primary" @click="$emit('send')">发送</n-button>
     </div>
-
+  </div>
 </template>
 
 <script setup>
@@ -39,31 +49,16 @@ const props = defineProps({
   userAvatar: String,
   receiverId: Number,
   receiverName: String,
-  receiverAvatar: String
+  receiverAvatar: String,
 })
 
 const scrollContainer = ref(null)
 
-// 100% 有效的滚动函数
 const scrollToBottom = () => {
-  const container = scrollContainer.value
-  if (!container) return
-  
-  // 强制样式确保可滚动
-  container.style.overflowY = 'auto'
-  container.style.display = 'block'
-  
-  // 双重保险滚动
   nextTick(() => {
-    container.scrollTop = container.scrollHeight
-    setTimeout(() => {
-      container.scrollTop = container.scrollHeight
-      // 最终极的保证方案
-      if (container.scrollTop < container.scrollHeight - container.clientHeight) {
-        container.style.height = 'auto'
-        container.scrollTop = container.scrollHeight
-      }
-    }, 50)
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+    }
   })
 }
 
@@ -71,46 +66,50 @@ watch(() => props.messages, scrollToBottom, { deep: true, immediate: true })
 
 const localMessage = computed({
   get: () => props.newMessage,
-  set: () => {}
+  set: () => {},
 })
-
 </script>
 
 <style scoped>
-
-.n-infinite-scroll {
-  overflow-y: auto !important;
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 62vh;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
-/* 顶部固定高 */
 .chat-header {
-  height: 40px;
   flex-shrink: 0;
+  height: 48px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
 }
 
-.chat-container {
-  height: 58vh;
-  overflow-y: scroll !important; /* 强制显示滚动条 */
-  position: relative;
+.chat-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px;
+  background-color: #fff;
 }
 
 .chat-messages {
-  min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
 }
 
 .message-container {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
-.message-self, .message-other {
+
+.message-self,
+.message-other {
   display: flex;
   align-items: flex-end;
-  max-width: 100%;
 }
 
 .message-self {
@@ -121,11 +120,13 @@ const localMessage = computed({
   justify-content: flex-start;
 }
 
-.bubble-self, .bubble-other {
-  max-width: 70%;
-  padding: 8px 12px;
+.bubble-self,
+.bubble-other {
+  max-width: 60%;
+  padding: 10px 14px;
   border-radius: 12px;
-  word-wrap: break-word;
+  word-break: break-word;
+  font-size: 14px;
 }
 
 .bubble-self {
@@ -135,27 +136,27 @@ const localMessage = computed({
 }
 
 .bubble-other {
-  background-color: white;
+  background-color: #f1f1f1;
+  color: #000;
   border: 1px solid #ddd;
   border-bottom-left-radius: 0;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  margin: 0 8px;
   object-fit: cover;
 }
 
-/* 底部输入区域固定高 */
 .chat-input {
+  flex-shrink: 0;
   display: flex;
+  align-items: center;
   gap: 8px;
-  padding-top: 8px;
+  padding: 10px 16px;
   border-top: 1px solid #ddd;
   background-color: #fff;
-  flex-shrink: 0;
-  height: 50px;
-  box-sizing: border-box;
 }
 </style>
