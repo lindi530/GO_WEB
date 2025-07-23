@@ -84,7 +84,7 @@ const registerVisible = ref(false);
 const chatVisible = ref(false);
 const pendingRoute = ref(null);
 
-const refreshToken = computed(() => store.getters['user/refreshToken']);
+const refreshToken = computed(() => store.getters['user/refreshToken'] || localStorage.refreshToken);
 const accessToken = computed(() => store.getters['user/accessToken']);
 const isLogin = computed(() => store.getters['user/isLogin']);
 const userName = computed(() => store.getters['user/userName']);
@@ -117,7 +117,10 @@ function handleLinkClick(item) {
 
 async function logout() {
   try {
+    console.log("refreshToken: ", refreshToken.value)
+    console.log("accessToken: ", accessToken.value)
     const resp = await api.logout({ refresh_token: refreshToken.value });
+    
     if (resp.code === 0) {
       store.commit('user/SET_ACCESSTOKEN', '');
       store.commit('user/SET_REFRESHTOKEN', '');

@@ -113,6 +113,7 @@ async function handleSelectUser(id) {
 }
 
 function handleSendMessage() {
+  
   if (!newMessage.value || !selectedUserId.value) return
   const msg = {
     type: 'chat',
@@ -122,6 +123,7 @@ function handleSendMessage() {
   }
   messageMap.value[selectedUserId.value] = messageMap.value[selectedUserId.value] || []
   messageMap.value[selectedUserId.value].push(msg)
+  console.log("msg: ", msg)
   sendMessage(msg)
   newMessage.value = ''
 }
