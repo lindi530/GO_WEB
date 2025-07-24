@@ -1,8 +1,8 @@
 <template>
-    <!-- <ChatFloatingWindow v-if="showChat" @close="showChat = false" /> -->
+    <CodeEditor />
 </template>
 
 <script setup>
-// import ChatFloatingWindow from './ChatFloatingWindow.vue'
+import CodeEditor from './CodeEditor.vue'
 
 </script>

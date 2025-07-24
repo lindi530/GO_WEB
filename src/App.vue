@@ -1,16 +1,17 @@
 <template>
-  <n-message-provider>
-    <NavBar/>
-    <router-view/>
-  </n-message-provider>
+    <n-message-provider>
+      <NavBar/>
+      <router-view/>
+    </n-message-provider>
 </template>
 
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import 'highlight.js/styles/github.css'
 import NavBar from "./components/NavBar";
-import { NMessageProvider } from 'naive-ui'
+
 
 export default {
   name: "App",
