@@ -4,7 +4,7 @@ import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersProfileView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserListView.vue'
-import Test from '@/components/test/Test.vue'
+import Test from '@/views/CodingView.vue'
 import Chat from '@/components/chat/zbase.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
@@ -55,6 +55,7 @@ const routes = [
     name: '404',
     component: NotFound
   },
+  
   { path: '/:pathMatch(.*)*', redirect: '/404' }
 ]
 

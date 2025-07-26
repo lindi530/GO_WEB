@@ -82,5 +82,8 @@ export default {
   getFollowUserList() {
     return request.get(`follow/userlist`)
   },
+  getProblemDetail(problemID) {
+    return request.get(`problems/${problemID}`)
+  }
   // 这里按需继续扩展接口
 };

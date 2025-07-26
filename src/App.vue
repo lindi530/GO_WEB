@@ -42,4 +42,11 @@ nav a {
 nav a.router-link-exact-active {
   color: #42b983;
 }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 禁止 body 自身滚动 */
+}
 </style>
