@@ -84,6 +84,9 @@ export default {
   },
   getProblemDetail(problemID) {
     return request.get(`problems/${problemID}`)
+  },
+  submitCode(data) { 
+    return request.post(`problems/submit`, data)
   }
   // 这里按需继续扩展接口
 };

@@ -35,61 +35,34 @@
 <script setup>
 import { ref, watch, defineAsyncComponent } from 'vue'
 import { NCard, NSelect, NButton, NSpace, useMessage } from 'naive-ui'
+import api from '@/api'
 
 const MonacoEditor = defineAsyncComponent(() => import('monaco-editor-vue3'))
 
 // props + emit
 const props = defineProps({
-  lang: String,
-  code: String
+  problemId: Number
 })
-const emit = defineEmits(['update:lang', 'update:code'])
 
 const langOptions = [
   { label: 'C++', value: 'cpp' },
-  { label: 'Python3', value: 'py' },
+  { label: 'Python3', value: 'python' },
   { label: 'Java', value: 'java' }
 ]
 
-const internalLang = ref(props.lang)
-const internalCode = ref(props.code)
+const internalLang = ref('cpp')
+const internalCode = ref(defaultCode(internalLang.value))
 const editorVisible = ref(true)
 const monacoKey = ref(0)
 const theme = ref('vs-light')
 const userEdited = ref(false)
 const message = useMessage()
 
-watch(() => props.lang, val => (internalLang.value = val))
-watch(() => props.code, val => (internalCode.value = val))
-
-watch(internalCode, val => {
-  userEdited.value = true
-  emit('update:code', val)
-})
-watch(internalLang, (newLang, oldLang) => {
-  if (!userEdited.value) {
-    editorVisible.value = false
-    setTimeout(() => {
-      internalCode.value = defaultCode(newLang)
-      monacoKey.value++
-      editorVisible.value = true
-      emit('update:lang', newLang)
-    }, 50)
-  } else {
-    if (window.confirm('切换语言将重置代码，确定？')) {
-      internalCode.value = defaultCode(newLang)
-      emit('update:lang', newLang)
-      userEdited.value = false
-    } else {
-      internalLang.value = oldLang
-    }
-  }
-})
 
 function defaultCode(lang) {
   return {
     cpp: `#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  return 0;\n}`,
-    py: `class Solution:\n    def twoSum(self, nums, target):\n        pass`,
+    python: `class Solution:\n    def twoSum(self, nums, target):\n        pass`,
     java: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        return new int[]{};\n    }\n}`
   }[lang] || ''
 }
@@ -104,13 +77,39 @@ function toggleTheme() {
   theme.value = theme.value === 'vs-light' ? 'vs-dark' : 'vs-light'
 }
 
-function submitCode() {
+async function submitCode() {
+  try {
+    console.log({
+      "problem_id": props.problemId,
+      "language": internalLang.value,
+      "code": internalCode.value,
+    })
+
+    const resp = await api.submitCode({
+      "problem_id": props.problemId,
+      "language": internalLang.value,
+      "code": internalCode.value,
+    })
+
+    if (resp.code === 1) { 
+      console.log("得到返回结果")
+    }
+  } catch { 
+
+  }
+
   message.success('✅ 模拟提交成功')
   console.log('提交内容：', {
     lang: internalLang.value,
     code: internalCode.value
   })
 }
+
+watch(internalLang, (newLang, oldLang) => {
+  if (!userEdited.value) {
+    internalCode.value = defaultCode(newLang)
+  }
+})
 
 const editorOptions = {
   minimap: { enabled: false },

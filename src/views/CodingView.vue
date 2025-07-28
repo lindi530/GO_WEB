@@ -14,7 +14,9 @@
 
           <!-- 右侧编辑器+测试 -->
           <div class="flex-fill" style="max-width: 50%;">
-            <CodeEditor v-model:lang="lang" v-model:code="code" />
+            <CodeEditor 
+              :problem-id="problemID"
+            />
             <SampleTest
               :sample-input="sampleInput"
               :output="sampleOutput"
@@ -61,10 +63,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-// 编辑器语言和代码
-const lang = ref('cpp')
-const code = ref(`#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  return 0;\n}`)
 
 // 样例测试
 const sampleInput = ref(`2 7 11 15\n9`)
