@@ -17,12 +17,12 @@
             <CodeEditor 
               :problem-id="problemID"
             />
-            <SampleTest
+            <!-- <SampleTest
               :sample-input="sampleInput"
               :output="sampleOutput"
               :status="runStatus"
               :run-function="runSampleTest"
-            />
+            /> -->
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@ onMounted(async () => {
 })
 
 // 样例测试
-const sampleInput = ref(`2 7 11 15\n9`)
+const sampleInput = ref('')
 const sampleOutput = ref('')
 const runStatus = ref('未运行')
 

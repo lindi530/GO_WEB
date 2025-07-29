@@ -14,28 +14,44 @@
       </n-space>
     </template>
 
-    <MonacoEditor
-      v-if="editorVisible"
-      :key="monacoKey"
-      v-model:value="internalCode"
-      :language="internalLang"
-      :theme="theme"
-      :height="400"
-      :options="editorOptions"
-      class="editor mb-3"
-    />
+    <div ref="editorContainer" class="editor-container mb-3">
+      <MonacoEditor
+        v-if="editorReady"
+        v-model:value="internalCode"
+        :language="internalLang"
+        :theme="theme"
+        :height="editorHeight"
+        :options="editorOptions"
+      />
+    </div>
 
     <div class="d-flex justify-content-between">
       <n-button @click="resetCode">重置代码</n-button>
-      <n-button type="primary" @click="submitCode">提交</n-button>
+      <n-button 
+        type="primary" 
+        @click="submitCode"
+        :disabled="isLoading"
+        :class="{ 'opacity-50 cursor-not-allowed': isLoading }"
+      >
+        {{ isLoading ? '提交中...' : '提交' }}
+      </n-button>
     </div>
+
+    <SampleTest 
+      :activeStatus="activeStatus"
+      @handleActiveStatus="handleActiveStatus"
+      :testSample="testSample"
+      @handleTestSample="handleTestSample"
+    />
   </n-card>
 </template>
 
 <script setup>
-import { ref, watch, defineAsyncComponent } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, defineAsyncComponent } from 'vue'
 import { NCard, NSelect, NButton, NSpace, useMessage } from 'naive-ui'
+import { useIntersectionObserver } from '@vueuse/core' // 从 vueuse 导入
 import api from '@/api'
+import SampleTest from './SampleTest.vue'
 
 const MonacoEditor = defineAsyncComponent(() => import('monaco-editor-vue3'))
 
@@ -47,24 +63,39 @@ const props = defineProps({
 const langOptions = [
   { label: 'C++', value: 'cpp' },
   { label: 'Python3', value: 'python' },
-  { label: 'Java', value: 'java' }
+  { label: 'Go', value: 'go' }
 ]
 
 const internalLang = ref('cpp')
-const internalCode = ref(defaultCode(internalLang.value))
-const editorVisible = ref(true)
-const monacoKey = ref(0)
+const internalCode = ref('')
+const editorReady = ref(false)
+const editorContainer = ref(null)
+const editorHeight = ref(400)
 const theme = ref('vs-light')
 const userEdited = ref(false)
 const message = useMessage()
+const isEditorVisible = ref(true)
+const testSample = ref(true)
+const isLoading = ref(false)
+const activeStatus = ref('')
 
+// 存储 ResizeObserver 实例
+let resizeObserver = null
 
 function defaultCode(lang) {
   return {
     cpp: `#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  return 0;\n}`,
     python: `class Solution:\n    def twoSum(self, nums, target):\n        pass`,
-    java: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        return new int[]{};\n    }\n}`
+    go: `package main\n\nimport(\n  \"fmt\"\n)\n\nfunc main() {\n}`
   }[lang] || ''
+}
+
+const handleTestSample = (value) => {
+  testSample.value = value
+}
+
+const handleActiveStatus = (value) => { 
+  activeStatus.value = value
 }
 
 function resetCode() {
@@ -78,31 +109,30 @@ function toggleTheme() {
 }
 
 async function submitCode() {
-  try {
-    console.log({
-      "problem_id": props.problemId,
-      "language": internalLang.value,
-      "code": internalCode.value,
-    })
+  if (isLoading.value) return
 
+  isLoading.value = true
+  handleTestSample(false)
+  handleActiveStatus("")
+  try {
     const resp = await api.submitCode({
       "problem_id": props.problemId,
       "language": internalLang.value,
       "code": internalCode.value,
     })
 
-    if (resp.code === 1) { 
+    if (resp.code === 0) { 
       console.log("得到返回结果")
+      handleActiveStatus("Finished")
+    } else {
+      handleActiveStatus("Wrong Answer")
     }
-  } catch { 
-
+  } catch (error) {
+    message.error('提交失败：' + error.message)
+  } finally {
+    isLoading.value = false  // 无论成功或失败都重置加载状态
   }
 
-  message.success('✅ 模拟提交成功')
-  console.log('提交内容：', {
-    lang: internalLang.value,
-    code: internalCode.value
-  })
 }
 
 watch(internalLang, (newLang, oldLang) => {
@@ -111,10 +141,72 @@ watch(internalLang, (newLang, oldLang) => {
   }
 })
 
+// 监听代码变化，标记用户是否编辑过
+watch(internalCode, () => {
+  if (!userEdited.value) {
+    userEdited.value = true
+  }
+})
+
 const editorOptions = {
   minimap: { enabled: false },
-  automaticLayout: true
+  automaticLayout: false, // 禁用自动布局，改用手动控制
+  scrollBeyondLastLine: false
 }
+
+onMounted(async () => {
+  // 初始设置默认代码
+  internalCode.value = defaultCode(internalLang.value)
+  
+  // 等待容器渲染完成后再初始化编辑器
+  await nextTick()
+  
+  // 初始化 ResizeObserver 监听容器尺寸变化
+  if ('ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(entries => {
+      // 使用 requestAnimationFrame 避免布局抖动
+      requestAnimationFrame(() => {
+        if (entries[0] && entries[0].contentRect) {
+          // 更新编辑器高度（可选）
+          editorHeight.value = entries[0].contentRect.height
+        }
+      })
+    })
+    
+    // 开始监听容器尺寸变化
+    if (editorContainer.value) {
+      resizeObserver.observe(editorContainer.value)
+    }
+  }
+  
+  // 使用 IntersectionObserver 检测编辑器是否在视口中
+  const { stop } = useIntersectionObserver(
+    editorContainer,
+    ([{ isIntersecting }]) => {
+      isEditorVisible.value = isIntersecting
+      
+      // 当编辑器进入视口时延迟初始化
+      if (isIntersecting && !editorReady.value) {
+        setTimeout(() => {
+          editorReady.value = true
+        }, 100)
+      }
+    }
+  )
+  
+  // 组件销毁时停止观察
+  onUnmounted(() => {
+    stop()
+  })
+})
+
+onUnmounted(() => {
+  // 清理 ResizeObserver
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+})
 </script>
 
 <style scoped>
@@ -127,7 +219,8 @@ const editorOptions = {
 .mb-3 {
   margin-bottom: 12px;
 }
-.editor {
+.editor-container {
   width: 100%;
+  height: 400px; /* 默认高度，会被 ResizeObserver 更新 */
 }
 </style>
