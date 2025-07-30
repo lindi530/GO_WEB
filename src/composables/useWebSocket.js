@@ -1,10 +1,9 @@
 // useWebSocket.js
-import { ref } from 'vue'
+import { ref, toHandlerKey } from 'vue'
 import api from '@/api'
 
 let ws = null
 let isConnected = false
-let accessToken = null
 
 const messageMap = ref({})
 const followedUsers = ref([])
@@ -12,41 +11,85 @@ const selectedUserId = ref(null)
 
 const messageCache = ref([])
 let pendingMessages = ref([])
+const submitCodeCallbacks = ref([])
+
+export function registerSubmitCodeCallback(callback) {
+  submitCodeCallbacks.value.push(callback)
+  console.log("注册了一个回调，当前回调总数：", submitCodeCallbacks.value.length)
+  // 返回注销函数，避免组件卸载后仍执行
+  return () => {
+    submitCodeCallbacks.value = submitCodeCallbacks.value.filter(cb => cb !== callback)
+  }
+}
+
 
 export function initWebSocket(token) {
   if (isConnected || ws) return
-  
+
+  console.log("建立连接：", token)
+
+  ws = new WebSocket(`ws://localhost:8000/ws?token=${token}`)
+  console.log("完成连接")
+
   getFollowedUsers()
   console.log("getFollowedUsers:", followedUsers.value)
-
-  accessToken = token
-  ws = new WebSocket(`ws://localhost:8000/ws?token=${token}`)
+  
 
   ws.onopen = () => {
     isConnected = true
-    console.log('[WebSocket] connected')
+    console.log('WebSocket连接成功')
     pendingMessages.value.forEach(msg => ws.send(JSON.stringify(msg)))
     pendingMessages.value = []
   }
 
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data)
+    switch (msg.type) { 
+      case "chat":
+        handleChat(msg)
+        break;
+      case "submit_code":
+        handleSubmitCode(msg)
+        break;
+    }
+  }
+  // 链接关闭
+  ws.onclose = () => {
+    isConnected = false
+    ws = null
+    console.log('WebSocket连接关闭，尝试重连...')
+    setTimeout(() => {
+        if (localStorage.accessToken) {
+          initWebSocket(localStorage.accessToken);
+        }
+      }, 3000);
+  }
 
-    if (followedUsers.value.length === 0) {
+  // 连接错误
+  ws.onerror = (error) => {
+    console.error('WebSocket错误', error);
+  };
+}
+
+function handleSubmitCode(msg) {
+  console.log("进入handleSubmitCode，消息：", msg)
+  console.log("当前注册的回调数量：", submitCodeCallbacks.value.length)
+  
+  submitCodeCallbacks.value.forEach(callback => {
+    console.log("准备执行回调...")
+    callback(msg)
+  })
+}
+
+function handleChat(msg) {
+  if (followedUsers.value.length === 0) {
     // 关注列表还没准备好，先缓存消息
       messageCache.value.push(msg)
       return
     }
-
     processMessage(msg)
-  }
-
-  ws.onclose = () => {
-    isConnected = false
-    ws = null
-    console.log('[WebSocket] closed')
-  }
 }
+
 function processAllMessages() {
   messageCache.value.forEach(msg => processMessage(msg))
   messageCache.value = []  // 清空缓存
@@ -87,11 +130,13 @@ export function useWebSocketContext() {
     messageMap,
     followedUsers,
     selectedUserId,
-    sendMessage
+    sendMessage,
+    registerSubmitCodeCallback
   }
 }
 
 async function getFollowedUsers() {
+  if (followedUsers.value.length != 0) return
   const resp = await api.getFollowUserList();
   if (resp.code === 0) {
     console.log("getFollowedUsers")

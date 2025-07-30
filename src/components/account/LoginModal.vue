@@ -79,12 +79,13 @@ const login = async () => {
     store.commit('user/SET_REFRESHTOKEN', refreshToken)
     store.commit('user/SET_PROFILE', user)
     // init websocket after login
-
+   
     initWebSocket(at)
     // emit success
     emit('login-success', user)
     close()
   } catch (err) {
+    
     errorMessage.value = err.response?.data?.message || '登录失败，请重试'
   }
 }

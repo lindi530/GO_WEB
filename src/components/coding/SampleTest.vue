@@ -81,6 +81,10 @@ const statusClass = computed(() => {
   switch (props.activeStatus) {
     case 'Finished':
       return 'status-success';
+    case 'Accepted':
+      return 'status-success';
+    case 'Running':
+      return 'status-run';
     default:
       return 'status-error';
   }
@@ -121,6 +125,10 @@ const statusClass = computed(() => {
 }
 .status-error {
   color: #d03050; /* 错误红色 */
+}
+
+.status-run {
+  color: #337AB7; /* 运行蓝色 */
 }
 
 </style>

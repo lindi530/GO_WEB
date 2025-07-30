@@ -52,6 +52,7 @@ import { NCard, NSelect, NButton, NSpace, useMessage } from 'naive-ui'
 import { useIntersectionObserver } from '@vueuse/core' // 从 vueuse 导入
 import api from '@/api'
 import SampleTest from './SampleTest.vue'
+import { useWebSocketContext } from '@/composables/useWebSocket.js'
 
 const MonacoEditor = defineAsyncComponent(() => import('monaco-editor-vue3'))
 
@@ -78,6 +79,8 @@ const isEditorVisible = ref(true)
 const testSample = ref(true)
 const isLoading = ref(false)
 const activeStatus = ref('')
+const { registerSubmitCodeCallback } = useWebSocketContext()
+
 
 // 存储 ResizeObserver 实例
 let resizeObserver = null
@@ -97,6 +100,15 @@ const handleTestSample = (value) => {
 const handleActiveStatus = (value) => { 
   activeStatus.value = value
 }
+
+const unregister = registerSubmitCodeCallback((msg) => {
+  // 根据 msg 中的信息，决定要设置的状态值
+  // 假设 msg 中有 content 字段（如 'pending'、'running'、'accepted' 等）
+  console.log("Code Editor: ", msg)
+  if (msg.content) {
+    handleActiveStatus(msg.content) // 调用组件内的更新函数
+  }
+})
 
 function resetCode() {
   internalCode.value = defaultCode(internalLang.value)
@@ -123,9 +135,7 @@ async function submitCode() {
 
     if (resp.code === 0) { 
       console.log("得到返回结果")
-      handleActiveStatus("Finished")
     } else {
-      handleActiveStatus("Wrong Answer")
     }
   } catch (error) {
     message.error('提交失败：' + error.message)
@@ -197,7 +207,9 @@ onMounted(async () => {
   // 组件销毁时停止观察
   onUnmounted(() => {
     stop()
-  })
+  },
+
+  )
 })
 
 onUnmounted(() => {
