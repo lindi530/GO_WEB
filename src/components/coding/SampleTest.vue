@@ -30,7 +30,7 @@
       :segmented="{ content: true }"
       style="max-height: 120px; overflow: auto"
     >
-      <pre class="result-text">{{ output }}</pre>
+      <pre class="result-text">{{ outputValue }}</pre>
     </n-card>
   </n-card>
 </template>
@@ -38,35 +38,24 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { NCard, NInput, NButton } from 'naive-ui'
+import api from '@/api'
 
 const props = defineProps({
   testSample: Boolean,
-  sampleInput: String,
   activeStatus: String,
-  output: String,
-  status: String
+  outputValue: String,
 })
 
-const emit = defineEmits(['handleTestSample', "handleActiveStatus"])
+const emit = defineEmits(['handleTestSample', "handleActiveStatus", 'handleRunExample'])
 
-const input = ref(props.sampleInput)
-watch(input, val => {
-  // 如果父组件需要同步 sampleInput，可以 emit，这里先保留本地逻辑
-})
+const input = ref("")
 
 // 样例提交
 const runFunction = async () => {
   console.log("提交中...")
   emit('handleTestSample', true)
   emit('handleActiveStatus', "")
-  try {
-    // 模拟异步提交
-    console.log("提交成功...")
-    emit('handleActiveStatus', "Finished")
-
-  } catch (error) {
-    resultOutput.value = error.message
-  }
+  emit('handleRunExample', input.value)
 }
 
 const statusTitle = computed(() => {
@@ -85,6 +74,8 @@ const statusClass = computed(() => {
       return 'status-success';
     case 'Running':
       return 'status-run';
+    case 'Pending':
+      return 'status-pending'
     default:
       return 'status-error';
   }
@@ -126,7 +117,9 @@ const statusClass = computed(() => {
 .status-error {
   color: #d03050; /* 错误红色 */
 }
-
+.status-pending {
+  color: #343c38;
+}
 .status-run {
   color: #337AB7; /* 运行蓝色 */
 }

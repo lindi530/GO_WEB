@@ -37,11 +37,13 @@
       </n-button>
     </div>
 
-    <SampleTest 
+    <SampleTest
       :activeStatus="activeStatus"
-      @handleActiveStatus="handleActiveStatus"
       :testSample="testSample"
+      :outputValue="outputValue"
+      @handleActiveStatus="handleActiveStatus"
       @handleTestSample="handleTestSample"
+      @handleRunExample="handleRunExample"
     />
   </n-card>
 </template>
@@ -79,6 +81,7 @@ const isEditorVisible = ref(true)
 const testSample = ref(true)
 const isLoading = ref(false)
 const activeStatus = ref('')
+const outputValue = ref('')
 const { registerSubmitCodeCallback } = useWebSocketContext()
 
 
@@ -99,6 +102,23 @@ const handleTestSample = (value) => {
 
 const handleActiveStatus = (value) => { 
   activeStatus.value = value
+}
+
+const handleRunExample = async (value) => { 
+  const resp = await api.submitExample(
+    {
+      "input": value,
+      "language": internalLang.value,
+      "code": internalCode.value,
+    }
+  )
+  if (resp.code === 0) {
+    console.log("得到样例输出")
+    outputValue.value = resp.data.output;
+  } else {
+
+  }
+
 }
 
 const unregister = registerSubmitCodeCallback((msg) => {
@@ -146,9 +166,7 @@ async function submitCode() {
 }
 
 watch(internalLang, (newLang, oldLang) => {
-  if (!userEdited.value) {
-    internalCode.value = defaultCode(newLang)
-  }
+  internalCode.value = defaultCode(newLang)
 })
 
 // 监听代码变化，标记用户是否编辑过

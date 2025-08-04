@@ -87,6 +87,9 @@ export default {
   },
   submitCode(data) { 
     return request.post(`problems/submit`, data)
+  },
+  submitExample(data) { 
+    return request.post(`problems/submit/example`, data)
   }
   // 这里按需继续扩展接口
 };

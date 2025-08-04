@@ -5,7 +5,7 @@ export async function restoreAuth(store) {
     const accessToken = localStorage.getItem('accessToken')
     const user = localStorage.getItem('user')
     if (!accessToken || !user) return
-
+    console.log("restoreAuth !!!!!!!!!!!!!!!!")
     try {
         const userProfile = JSON.parse(user)
         const res1 = await api.validateAccessToken()
@@ -18,11 +18,14 @@ export async function restoreAuth(store) {
             const res2 = await api.validateRefreshToken({
                 refresh_token: localStorage.getItem('refreshToken')
             })
+            
             if (res2.code == 0) {
-                accessToken = res2.data.accessToken
-                login(store, accessToken, userProfile)
-                initWebSocket(accessToken)
+                console.log("refreshTOken 成功更新:", userProfile);
+                const newAccessToken = res2.data.accessToken
+                login(store, newAccessToken, userProfile)
+                initWebSocket(newAccessToken)
             } else {
+                console.log("refreshTOken 更新失败");
                 logout(store)
             }
         }
@@ -38,6 +41,7 @@ function login(store, accessToken, userProfile) {
 }
 
 function logout(store) {
+    console.log("LOGOUT")
     store.commit('user/LOGOUT')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
