@@ -106,6 +106,7 @@ const handleActiveStatus = (value) => {
 
 const handleRunExample = async (value) => { 
   const resp = await api.submitExample(
+    props.problemId, 
     {
       "input": value,
       "language": internalLang.value,
@@ -147,11 +148,12 @@ async function submitCode() {
   handleTestSample(false)
   handleActiveStatus("")
   try {
-    const resp = await api.submitCode({
-      "problem_id": props.problemId,
-      "language": internalLang.value,
-      "code": internalCode.value,
-    })
+    const resp = await api.submitCode(
+      props.problemId,
+      {
+        "language": internalLang.value,
+        "code": internalCode.value,
+      })
 
     if (resp.code === 0) { 
       console.log("得到返回结果")

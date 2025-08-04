@@ -85,11 +85,11 @@ export default {
   getProblemDetail(problemID) {
     return request.get(`problems/${problemID}`)
   },
-  submitCode(data) { 
-    return request.post(`problems/submit`, data)
+  submitCode(problemID, data) { 
+    return request.post(`problems/${problemID}/submit`, data)
   },
-  submitExample(data) { 
-    return request.post(`problems/submit/example`, data)
+  submitExample(problemID, data) { 
+    return request.post(`problems/${problemID}/submit/example`, data)
   }
   // 这里按需继续扩展接口
 };
