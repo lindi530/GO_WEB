@@ -76,6 +76,8 @@ const statusClass = computed(() => {
       return 'status-run';
     case 'Pending':
       return 'status-pending'
+    case 'Time Limit Exceeded':
+      return 'status-timeout'
     default:
       return 'status-error';
   }
@@ -114,7 +116,7 @@ const statusClass = computed(() => {
 .status-success {
   color: #18a058; /* 成功绿色 */
 }
-.status-error {
+.status-error, .status-timeout {
   color: #d03050; /* 错误红色 */
 }
 .status-pending {
