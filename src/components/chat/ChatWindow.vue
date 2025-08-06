@@ -13,13 +13,13 @@
           :key="index"
           class="message-container"
         >
-          <div v-if="msg.from === userId" class="message-self">
-            <div class="bubble-self">{{ msg.content }}</div>
+          <div v-if="msg.data.from === userId" class="message-self">
+            <div class="bubble-self">{{ msg.data.content }}</div>
             <img :src="userAvatar" class="avatar" />
           </div>
           <div v-else class="message-other">
             <img :src="receiverAvatar" class="avatar" />
-            <div class="bubble-other">{{ msg.content }}</div>
+            <div class="bubble-other">{{ msg.data.content }}</div>
           </div>
         </div>
       </div>

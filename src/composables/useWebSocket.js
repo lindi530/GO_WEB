@@ -44,6 +44,7 @@ export function initWebSocket(token) {
 
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data)
+    console.log("onmessage", msg)
     switch (msg.type) { 
       case "chat":
         handleChat(msg)
@@ -82,12 +83,14 @@ function handleSubmitCode(msg) {
 }
 
 function handleChat(msg) {
+  
   if (followedUsers.value.length === 0) {
     // 关注列表还没准备好，先缓存消息
       messageCache.value.push(msg)
       return
-    }
-    processMessage(msg)
+  }
+  console.log("test: ", msg)
+  processMessage(msg)
 }
 
 function processAllMessages() {
@@ -95,10 +98,11 @@ function processAllMessages() {
   messageCache.value = []  // 清空缓存
 }
 function processMessage(msg) {
-  const from = msg.from
+  const from = msg.data.from
   if (!messageMap.value[from]) messageMap.value[from] = []
   messageMap.value[from].push(msg)
-  console.log("followedUsers: ", followedUsers.value)
+
+  console.log("processMessage: ", msg)
   const user = followedUsers.value.find(u => u.user_id === from)
   console.log("hasUnread", user)
   if (user) {

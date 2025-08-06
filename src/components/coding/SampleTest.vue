@@ -38,7 +38,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { NCard, NInput, NButton } from 'naive-ui'
-import api from '@/api'
 
 const props = defineProps({
   testSample: Boolean,
@@ -125,5 +124,4 @@ const statusClass = computed(() => {
 .status-run {
   color: #337AB7; /* 运行蓝色 */
 }
-
 </style>

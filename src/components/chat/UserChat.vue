@@ -117,9 +117,11 @@ function handleSendMessage() {
   if (!newMessage.value || !selectedUserId.value) return
   const msg = {
     type: 'chat',
-    from: userId.value,
     to: selectedUserId.value,
-    content: newMessage.value
+    data: {
+      from: userId.value,
+      content: newMessage.value
+    }
   }
   messageMap.value[selectedUserId.value] = messageMap.value[selectedUserId.value] || []
   messageMap.value[selectedUserId.value].push(msg)
