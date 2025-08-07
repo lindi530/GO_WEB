@@ -49,7 +49,7 @@ export function initWebSocket(token) {
       case "chat":
         handleChat(msg)
         break;
-      case "submit_code":
+      case "edit_status":
         handleSubmitCode(msg)
         break;
     }
@@ -98,7 +98,7 @@ function processAllMessages() {
   messageCache.value = []  // 清空缓存
 }
 function processMessage(msg) {
-  const from = msg.data.from
+  const from = msg.from
   if (!messageMap.value[from]) messageMap.value[from] = []
   messageMap.value[from].push(msg)
 

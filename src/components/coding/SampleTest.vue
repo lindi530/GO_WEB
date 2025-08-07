@@ -57,13 +57,6 @@ const runFunction = async () => {
   emit('handleRunExample', input.value)
 }
 
-const statusTitle = computed(() => {
-  if (props.status === '运行成功') return '✅ 输出结果'
-  if (props.status === '运行失败') return '❌ 运行失败'
-  if (props.status === '运行中...') return '⏳ 正在运行...'
-  return '运行状态'
-})
-
 
 const statusClass = computed(() => {
   switch (props.activeStatus) {
