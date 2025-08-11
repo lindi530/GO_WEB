@@ -24,7 +24,10 @@ export function registerSubmitCodeCallback(callback) {
 
 
 export function initWebSocket(token) {
-  if (isConnected || ws) return
+
+  console.log("isConnected: ", isConnected, "    ws: ", ws)
+  // if (isConnected || ws) return
+  if (ws && ws.readyState === WebSocket.OPEN) return
 
   console.log("建立连接：", token)
 
@@ -52,6 +55,9 @@ export function initWebSocket(token) {
       case "edit_status":
         handleSubmitCode(msg)
         break;
+      case "online_status":
+        handleOnlineStatus(msg)
+        break;
     }
   }
   // 链接关闭
@@ -70,6 +76,29 @@ export function initWebSocket(token) {
   ws.onerror = (error) => {
     console.error('WebSocket错误', error);
   };
+}
+
+export function closeWebSocket() {
+  if (ws) {
+    console.log("手动关闭 WebSocket 连接")
+    ws.close() // 会触发 ws.onclose
+    ws = null
+  }
+
+  isConnected = false
+  messageMap.value = {}
+  followedUsers.value = []
+  selectedUserId.value = null
+  pendingMessages.value = []
+  messageCache.value = []
+  submitCodeCallbacks.value = []
+}
+
+function handleOnlineStatus(msg) {
+  var user = followedUsers.value.find(user => user.user_id === msg.from);
+  user.online_state = msg.online_state
+
+  console.log("Ws online msg", msg)
 }
 
 function handleSubmitCode(msg) {
@@ -131,6 +160,7 @@ export function sendMessage(msg) {
 export function useWebSocketContext() {
   return {
     initWebSocket,
+    closeWebSocket,
     messageMap,
     followedUsers,
     selectedUserId,

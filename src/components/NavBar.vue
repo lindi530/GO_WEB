@@ -70,6 +70,7 @@
 import { ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { closeWebSocket } from '@/composables/useWebSocket'
 import LoginModal from './account/LoginModal.vue';
 import RegisterModal from './account/RegisterModal.vue';
 import ChatModel from './chat/UserChat.vue'
@@ -117,8 +118,6 @@ function handleLinkClick(item) {
 
 async function logout() {
   try {
-    console.log("refreshToken: ", refreshToken.value)
-    console.log("accessToken: ", accessToken.value)
     const resp = await api.logout({ refresh_token: refreshToken.value });
     
     if (resp.code === 0) {
@@ -126,6 +125,8 @@ async function logout() {
       store.commit('user/SET_REFRESHTOKEN', '');
       store.commit('user/SET_PROFILE', {});
       store.commit('user/LOGOUT');
+
+      closeWebSocket();
     }
   } catch (err) {
     console.error("登出失败：", err);
