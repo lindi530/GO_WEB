@@ -104,6 +104,17 @@ const router = useRouter();
 // 模拟数据
 const problems = ref([]);
 
+// 搜索
+const searchText = ref("");
+const filteredProblems = ref([...problems.value]);
+
+function filterProblems() {
+  const keyword = searchText.value.trim().toLowerCase();
+  filteredProblems.value = problems.value.filter((p) =>
+    p.title.toLowerCase().includes(keyword)
+  );
+}
+
 onMounted(async () => {
   try {
     const resp = await api.getProblemList()
@@ -128,17 +139,6 @@ onMounted(async () => {
     console.error('获取题目失败', e)
   }
 })
-
-// 搜索
-const searchText = ref("");
-const filteredProblems = ref([...problems.value]);
-
-function filterProblems() {
-  const keyword = searchText.value.trim().toLowerCase();
-  filteredProblems.value = problems.value.filter((p) =>
-    p.title.toLowerCase().includes(keyword)
-  );
-}
 
 // 分页
 const page = ref(1);
