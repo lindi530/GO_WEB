@@ -4,6 +4,7 @@
       {{ loading ? '发送中...' : '发送消息' }}
     </button>
     <p v-if="success" class="text-success mt-2">消息发送成功！</p>
+    
     <p v-if="error" class="text-danger mt-2">发送失败：{{ error }}</p>
   </div>
 </template>

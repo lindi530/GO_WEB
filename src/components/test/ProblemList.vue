@@ -67,8 +67,8 @@
 
                     <!-- 难度 -->
                     <td>
-                    <n-tag :type="getDifficultyType(problem.difficulty)">
-                        {{ problem.difficulty }}
+                    <n-tag :type="getDifficultyType(problem.level)">
+                        {{ problem.level }}
                     </n-tag>
                     </td>
 
@@ -93,22 +93,41 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { NButton, NTag, NInput, NPagination, NSpace, NIcon } from "naive-ui";
 import { CheckmarkCircle, CloseCircle } from "@vicons/ionicons5";
 import { useRouter } from "vue-router";
+import api from "@/api";
 
 const router = useRouter();
 
 // 模拟数据
-const problems = ref([
-  { id: 1, title: "两数之和", difficulty: "简单", passRate: 89, solved: true, submitted: true, tags: ["数组", "哈希表"] },
-  { id: 2, title: "最长回文子串", difficulty: "中等", passRate: 47, solved: false, submitted: true, tags: ["字符串", "动态规划"] },
-  { id: 3, title: "合并K个排序链表", difficulty: "困难", passRate: 32, solved: false, submitted: false, tags: ["链表", "分治"] },
-  { id: 4, title: "爬楼梯", difficulty: "简单", passRate: 91, solved: true, submitted: true, tags: ["动态规划"] },
-  { id: 5, title: "LRU缓存机制", difficulty: "中等", passRate: 52, solved: false, submitted: false, tags: ["设计", "哈希表"] },
-  { id: 6, title: "接雨水", difficulty: "困难", passRate: 41, solved: false, submitted: true, tags: ["双指针", "栈"] },
-]);
+const problems = ref([]);
+
+onMounted(async () => {
+  try {
+    const resp = await api.getProblemList()
+    console.log("resp: ", resp)
+    if (resp.code == 0) {
+      problems.value = resp.data.map(item => ({
+        id: item.id,
+        title: item.title || '无标题',
+        level: item.level || '未知',
+        tags: item.tags && item.tags.length > 0 ? item.tags : ['无标签'],
+        passRate: (item.pass_rate !== undefined && item.pass_rate !== null) ? item.pass_rate : 0,
+        solved: item.solved || false,       // 你UI里用的状态字段，没有则默认false
+        submitted: item.submitted || false, // 同上
+      }))
+      console.log("problems: ", problems.value)
+      filteredProblems.value = [...problems.value]  // 同步更新
+    } else {
+      console.log("获取题目失败")
+    }
+    
+  } catch (e) {
+    console.error('获取题目失败', e)
+  }
+})
 
 // 搜索
 const searchText = ref("");

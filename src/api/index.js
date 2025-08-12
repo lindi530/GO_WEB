@@ -85,6 +85,9 @@ export default {
   getProblemDetail(problemID) {
     return request.get(`problems/${problemID}`)
   },
+  getProblemList() {
+    return request.get(`problems`)
+  },
   submitCode(problemID, data) { 
     return request.post(`problems/${problemID}/submit`, data)
   },
