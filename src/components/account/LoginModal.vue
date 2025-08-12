@@ -79,7 +79,7 @@ const login = async () => {
     store.commit('user/SET_REFRESHTOKEN', refreshToken)
     store.commit('user/SET_PROFILE', user)
     // init websocket after login
-   
+
     initWebSocket(at)
     // emit success
     emit('login-success', user)

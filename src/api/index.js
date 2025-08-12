@@ -90,6 +90,9 @@ export default {
   },
   submitExample(problemID, data) { 
     return request.post(`problems/${problemID}/submit/example`, data)
+  },
+  match() {
+    return request.post(`match`)
   }
   // 这里按需继续扩展接口
 };

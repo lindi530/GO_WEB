@@ -1,4 +1,4 @@
-// src/views/CodingView.vue
+// src/views/ProblemView.vue
 <template>
   <div
   class="container-fluid px-5 py-4 page-container"
@@ -37,7 +37,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import ProblemDetail from '@/components/coding/ProblemDetail.vue'
 import CodeEditor from '@/components/coding/CodeEditor.vue'
-import SampleTest from '@/components/coding/SampleTest.vue'
 import api from '@/api'
 
 // 当前题目
@@ -64,36 +63,6 @@ onMounted(async () => {
   }
 })
 
-// 样例测试
-const sampleInput = ref('')
-const sampleOutput = ref('')
-const runStatus = ref('未运行')
-
-function runSampleTest() {
-  runStatus.value = '运行中...'
-  sampleOutput.value = ''
-  setTimeout(() => {
-    try {
-      const lines = sampleInput.value.trim().split('\n')
-      const nums = lines[0].split(/\s+/).map(Number)
-      const target = Number(lines[1])
-      let res = [-1, -1]
-      for (let i = 0; i < nums.length; i++) {
-        for (let j = i + 1; j < nums.length; j++) {
-          if (nums[i] + nums[j] === target) {
-            res = [i, j]
-            break
-          }
-        }
-      }
-      sampleOutput.value = `输出结果: [${res[0]}, ${res[1]}]`
-      runStatus.value = '运行成功'
-    } catch {
-      sampleOutput.value = '运行错误：输入格式不正确'
-      runStatus.value = '运行失败'
-    }
-  }, 800)
-}
 </script>
 
 <style scoped>

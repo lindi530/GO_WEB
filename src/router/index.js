@@ -4,10 +4,11 @@ import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersProfileView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserListView.vue'
-import Test from '@/views/CodingView.vue'
+import Test from '@/components/test/Test.vue'
 import Chat from '@/components/chat/zbase.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
+import Problem from '@/components/test/Test.vue'
 
 const routes = [
   {
@@ -44,6 +45,11 @@ const routes = [
     path: '/posts/:post_id',
     name: 'PostDetail',
     component: PostDetail,
+  },
+  {
+    path: '/problems/',
+    name: 'problem',
+    component: Problem,
   },
   {
     path: '/test',

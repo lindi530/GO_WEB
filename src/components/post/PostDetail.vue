@@ -97,5 +97,3 @@ const likePost = async () => {
   max-width: 800px;
 }
 </style>
-
-

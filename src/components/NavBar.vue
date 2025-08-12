@@ -92,16 +92,20 @@ const userName = computed(() => store.getters['user/userName']);
 const userId = computed(() => store.getters['user/userId']);
 const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png');
 
+
+
 const leftLinks = computed(() => [
   { label: '首页', to: '/' },
   { label: '帖子列表', to: '/posts' },  
   { label: '用户信息', to: '/user-info' },
   { label: '用户列表', to: '/users/userList' },
-  { label: '聊天', to: '/users/chat'},
+  { label: '聊天', to: '/users/chat' },
+  { label: '题目', to: '/problems'},
   { label: '测试', to: '/test'}
 ]);
 
 function handleLinkClick(item) {
+  console.log("头像显示：", userAvatar.value)
   if (item.label === '用户信息') {
     if (isLogin.value && userId.value) {
       router.push(`/users/${userId.value}`);
