@@ -147,7 +147,11 @@ async function submitCode() {
   isLoading.value = true
   handleTestSample(false)
   handleActiveStatus("")
+
+
+  console.log("problemID:", props.problemId)
   try {
+    
     const resp = await api.submitCode(
       props.problemId,
       {

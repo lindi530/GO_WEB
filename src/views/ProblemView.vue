@@ -45,7 +45,7 @@ const loading = ref(true)
 const route = useRoute()
 
 // 从 URL 获取 problemID
-const problemID = 1 //route.params.problemID
+const problemID = route.params.problem_id
 
 onMounted(async () => {
   try {

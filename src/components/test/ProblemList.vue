@@ -34,7 +34,7 @@
                 <tr v-for="problem in pagedProblems" :key="problem.id">
                     <!-- 状态图标列 -->
                     <td class="text-center">
-                    <template v-if="problem.solved">
+                    <template v-if="problem.accepted">
                         <n-icon color="green" size="20"><CheckmarkCircle /></n-icon>
                     </template>
                     <template v-else-if="problem.submitted">
@@ -126,7 +126,7 @@ onMounted(async () => {
         level: item.level || '未知',
         tags: item.tags && item.tags.length > 0 ? item.tags : ['无标签'],
         passRate: (item.pass_rate !== undefined && item.pass_rate !== null) ? item.pass_rate : 0,
-        solved: item.solved || false,       // 你UI里用的状态字段，没有则默认false
+        accepted: item.accepted || false,       // 你UI里用的状态字段，没有则默认false
         submitted: item.submitted || false, // 同上
       }))
       console.log("problems: ", problems.value)
@@ -157,7 +157,7 @@ function getDifficultyType(difficulty) {
 
 // 点击跳转
 function goToProblem(id) {
-  router.push(`/problem/${id}`);
+  router.push(`/problems/${id}`);
 }
 </script>
 

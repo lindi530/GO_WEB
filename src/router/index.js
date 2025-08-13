@@ -9,6 +9,7 @@ import Chat from '@/components/chat/zbase.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
 import Problem from '@/components/test/ProblemList.vue'
+import ProblemDetail from '@/views/ProblemView.vue'
 
 const routes = [
   {
@@ -47,9 +48,14 @@ const routes = [
     component: PostDetail,
   },
   {
-    path: '/problems/',
-    name: 'problem',
+    path: '/problems',
+    name: 'Problem',
     component: Problem,
+  },
+  {
+    path: '/problems/:problem_id',
+    name: 'ProblemDetail',
+    component: ProblemDetail,
   },
   {
     path: '/test',
