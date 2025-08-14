@@ -35,7 +35,7 @@
 
 <script>
 import api from '@/api';
-import avatarPath from '../test/1.png'
+import avatarPath from '@/assets/1.png'
 import SimplePost from '../post/PostSimple.vue';
 export default {
   components: {SimplePost},

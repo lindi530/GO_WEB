@@ -60,7 +60,7 @@ const userId = computed(() => store.getters['user/userId'])
 const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png')
 
 const showModal = ref(props.visible)
-const modalRoot = ref(null)  
+const modalRoot = ref(null)
 
 watch(() => props.visible, (val) => {
   showModal.value = val

@@ -1,6 +1,8 @@
 <template>
-  <ChatModel v-model:visible="chatVisible" />
+  <ChatAPP v-model:visible="chatVisible" />
+  <SaberAPP v-model:visible="saberVisible" class="saber-fix"/>
   <nav class="navbar navbar-expand-md navbar-dark bg-primary bg-gradient shadow-sm py-2">
+
     <div class="container">
       <RouterLink class="navbar-brand fw-bold fs-4" to="/">My Blog</RouterLink>
       <button class="navbar-toggler" @click="isOpen = !isOpen" aria-label="Toggle navigation">
@@ -73,7 +75,8 @@ import { useStore } from 'vuex';
 import { closeWebSocket } from '@/composables/useWebSocket'
 import LoginModal from './account/LoginModal.vue';
 import RegisterModal from './account/RegisterModal.vue';
-import ChatModel from './chat/UserChat.vue'
+import ChatAPP from './chat/UserChat.vue'
+import SaberAPP from './saber/Interface.vue'
 import api from '@/api';
 
 const router = useRouter();
@@ -83,6 +86,7 @@ const isOpen = ref(false);
 const loginVisible = ref(false);
 const registerVisible = ref(false);
 const chatVisible = ref(false);
+const saberVisible = ref(false)
 const pendingRoute = ref(null);
 
 const refreshToken = computed(() => store.getters['user/refreshToken'] || localStorage.refreshToken);
@@ -92,31 +96,36 @@ const userName = computed(() => store.getters['user/userName']);
 const userId = computed(() => store.getters['user/userId']);
 const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png');
 
-
-
 const leftLinks = computed(() => [
   { label: '首页', to: '/' },
   { label: '帖子列表', to: '/posts' },  
   { label: '用户信息', to: '/user-info' },
   { label: '用户列表', to: '/users/userList' },
   { label: '聊天', to: '/users/chat' },
-  { label: '题库', to: '/problems'},
+  { label: '题库', to: '/problems' },
+  { label: '对战', to: '/' },
   { label: '测试', to: '/test'}
 ]);
 
 function handleLinkClick(item) {
-  console.log("头像显示：", userAvatar.value)
-  if (item.label === '用户信息') {
-    if (isLogin.value && userId.value) {
-      router.push(`/users/${userId.value}`);
-    } else {
-      loginVisible.value = true;
-      pendingRoute.value = `/users/${userId.value}`;
-    }
-  } else if (item.label === '聊天') {
-    chatVisible.value = true;
-   } else {
-    router.push(item.to);
+  switch (item.label) { 
+    case "用户信息":
+      if (isLogin.value && userId.value) {
+        router.push(`/users/${userId.value}`);
+      } else {
+        loginVisible.value = true;
+        pendingRoute.value = `/users/${userId.value}`;
+      }
+      break
+    case "聊天": 
+      chatVisible.value = true;
+      break
+    case '对战':
+      saberVisible.value = true;
+      break
+    default:
+      router.push(item.to);
+      break
   }
 }
 
@@ -146,7 +155,6 @@ function handleLoginSuccess() {
     }
   });
 }
-
 </script>
 
 <style scoped>
@@ -190,5 +198,17 @@ function handleLoginSuccess() {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 关键修复：确保Saber组件的按钮不受父组件样式影响 */
+:deep(.saber-fix) {
+  position: relative;
+  z-index: 9999 !important;
+}
+
+:deep(.saber-fix .content-text.btn) {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 10000 !important;
 }
 </style>

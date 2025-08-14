@@ -8,7 +8,7 @@ import Test from '@/components/test/Test.vue'
 import Chat from '@/components/chat/zbase.vue'
 import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
-import Problem from '@/components/test/ProblemList.vue'
+import Problem from '@/views/ProblemListView.vue'
 import ProblemDetail from '@/views/ProblemView.vue'
 
 const routes = [
