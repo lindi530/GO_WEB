@@ -19,8 +19,9 @@
         }"
         class="modal-dialog position-absolute bg-white rounded shadow-lg"
       >
-        <!-- 弹窗头部 -->
+        <!-- 弹窗头部：添加ref用于获取实际高度 -->
         <div 
+          ref="headerRef"
           class="modal-header custom-header cursor-move d-flex justify-content-between align-items-center"
           :style="{
             padding: headerPadding + 'px',
@@ -51,14 +52,15 @@
           ></button>
         </div>
         
-        <!-- 弹窗内容区：根据当前视图加载对应组件 -->
+        <!-- 弹窗内容区：使用头部实际高度计算高度 -->
         <div class="modal-body content-with-bg d-flex align-items-center justify-content-center button-container" 
              :style="{
                padding: bodyPadding + 'px',
                position: 'relative',
                zIndex: '100',
                gap: buttonGap + 'px',
-               height: `calc(100% - ${headerPadding * 2}px)`,
+               // 关键修复：使用头部实际高度替代估算值
+               height: `calc(100% - ${headerActualHeight}px)`,
                overflow: 'hidden',
                backgroundImage: `url(${bgImage})`,
                backgroundSize: 'cover',
@@ -77,9 +79,7 @@
           <BattleView 
             v-if="currentView === 'battle'"
             :battle-type="currentBattleType"
-            :button-width="buttonWidth"
-            :button-height="buttonHeight"
-            :button-font-size="buttonFontSize"
+            :base-scale="scaleRatio"
             @back-to-menu="handleBackToMenu"
           />
         </div>
@@ -104,19 +104,24 @@ const props = defineProps({
   }
 })
 
-
-
 // 组件内部状态
 const showDialog = ref(false);
 const currentView = ref('menu'); // 视图状态：menu/battle
 const currentBattleType = ref(''); // 记录当前对战类型
 const emit = defineEmits(['update:visible'])
 
+// 新增：用于获取头部实际高度的变量
+const headerRef = ref(null);
+const headerActualHeight = ref(0);
+
 // 同步显示状态
 watch(() => props.visible, (val) => {
   if (val) {
     showDialog.value = true;
-    nextTick(centerDialog);
+    nextTick(() => {
+      centerDialog();
+      updateHeaderHeight(); // 显示时计算头部高度
+    });
   } else {
     showDialog.value = false;
     currentView.value = 'menu'; // 隐藏时重置视图
@@ -172,25 +177,35 @@ const closeDialog = () => {
   emit('update:visible', false);
 };
 
+// 新增：更新头部实际高度的方法
+const updateHeaderHeight = () => {
+  if (headerRef.value) {
+    // 获取头部元素的实际高度（包括padding和border）
+    headerActualHeight.value = headerRef.value.offsetHeight;
+  }
+};
 
 const bgImage = ref(menuBg);
 
 const handleBackToMenu = () => { 
   currentView.value = "menu";
   bgImage.value = menuBg;
+  nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 }
 
 // 按钮点击事件 - 切换到对战视图
 const handleHeavenBattle = () => {
   currentBattleType.value = '天人对战';
   currentView.value = 'battle';
-  bgImage.value = BattleBg;
+  bgImage.value = "";
+  nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 };
 
 const handleFriendBattle = () => {
   currentBattleType.value = '好友对战';
   currentView.value = 'battle';
-  bgImage.value = BattleBg;
+  bgImage.value = "";
+  nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 };
 
 // 计算弹窗尺寸
@@ -247,6 +262,7 @@ const centerDialog = () => {
   dialogPositionRatio.value = { x: 0.5, y: 0.5 };
   dialogSize.value = calculateSizes();
   calculatePositionFromRatio();
+  nextTick(updateHeaderHeight); // 居中后重新计算头部高度
 };
 
 // 拖拽事件处理
@@ -283,12 +299,14 @@ const endDrag = () => {
     document.body.style.cursor = '';
   }
 };
+const scaleRatio = ref(1);
 
-// 窗口大小变化处理
+// 窗口大小变化处理：增加更新头部高度
 const handleWindowResize = () => {
   if (showDialog.value && !isDragging.value) {
     dialogSize.value = calculateSizes();
     calculatePositionFromRatio();
+    updateHeaderHeight(); // 窗口变化后重新计算头部高度
   }
 };
 
@@ -307,6 +325,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .saber-app-root {
   position: absolute;
   width: 0;
@@ -378,3 +397,4 @@ onUnmounted(() => {
   padding: 0 !important;
 }
 </style>
+    
