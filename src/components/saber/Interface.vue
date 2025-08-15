@@ -4,6 +4,7 @@
       <!-- 背景遮罩 -->
       <div 
         :class="['modal-backdrop fade', showDialog ? 'show' : '']"
+        :style="{ zIndex: 1000 }"
       ></div>
       
       <!-- 弹窗内容 -->
@@ -53,11 +54,11 @@
         </div>
         
         <!-- 弹窗内容区：使用头部实际高度计算高度 -->
-        <div class="modal-body content-with-bg d-flex align-items-center justify-content-center button-container" 
+        <div class="modal-body content-with-bg d-flex align-items justify-content button" 
              :style="{
                padding: bodyPadding + 'px',
                position: 'relative',
-               zIndex: '100',
+               zIndex: '9999',
                gap: buttonGap + 'px',
                // 关键修复：使用头部实际高度替代估算值
                height: `calc(100% - ${headerActualHeight}px)`,
@@ -84,6 +85,8 @@
           />
         </div>
       </div>
+
+
     </teleport>
   </div>
 </template>
@@ -197,14 +200,14 @@ const handleBackToMenu = () => {
 const handleHeavenBattle = () => {
   currentBattleType.value = '天人对战';
   currentView.value = 'battle';
-  bgImage.value = "";
+  bgImage.value = menuBg;
   nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 };
 
 const handleFriendBattle = () => {
   currentBattleType.value = '好友对战';
   currentView.value = 'battle';
-  bgImage.value = "";
+  bgImage.value = menuBg;
   nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 };
 
@@ -344,7 +347,7 @@ onUnmounted(() => {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9998;
+  z-index: 10;
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
@@ -356,6 +359,7 @@ onUnmounted(() => {
 .modal-backdrop.show {
   opacity: 1;
   pointer-events: auto;
+    z-index: 1000; /* 确保低于弹窗的 9999，不影响层级选择 */
 }
 
 .modal-dialog {
