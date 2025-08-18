@@ -96,6 +96,9 @@ export default {
   },
   match() {
     return request.post(`match`)
+  },
+  getUserSaberStats() { 
+    return request.get(`saber/info`)
   }
   // 这里按需继续扩展接口
 };
