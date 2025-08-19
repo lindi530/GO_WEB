@@ -186,7 +186,6 @@ onMounted(async() => {
     leftPlayer.value.level = data.level
     leftPlayer.value.total_matches = data.total_matches
     leftPlayer.value.wins = data.wins
-    console.log("leftPlayer: ", leftPlayer)
   } else {
 
   }
@@ -215,7 +214,7 @@ const handleBackToMenu = () => {
 };
 
 // 开始匹配事件
-const handleMatch = () => {
+const handleMatch = async() => {
   if (isMatching.value) return;
   
   isMatching.value = true;
@@ -226,9 +225,16 @@ const handleMatch = () => {
   matchTimer = setInterval(() => {
     matchTimeSeconds.value++;
   }, 1000);
+
+  let resp = await api.match()
+  if (resp.code === 0) { 
+    console.log("发送匹配请求成功！")
+  } else {
+    console.log("发送匹配请求失败：", resp.message)
+  }
   
   // 模拟寻找对手（3-10秒随机）
-  simulateFindingPlayers();
+  // simulateFindingPlayers();
   
   emit('match');
   console.log('开始匹配');

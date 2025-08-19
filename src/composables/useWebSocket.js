@@ -49,6 +49,9 @@ export function initWebSocket(token) {
     const msg = JSON.parse(e.data)
     console.log("onmessage", msg)
     switch (msg.type) { 
+      case "match_success":
+        handleMatch_success(msg)
+        break;
       case "chat":
         handleChat(msg)
         break;
@@ -99,6 +102,10 @@ function handleOnlineStatus(msg) {
   user.online_state = msg.online_state
 
   console.log("Ws online msg", msg)
+}
+
+function handleMatch_success(msg) { 
+  console.log("handleMatch_success: ", msg)
 }
 
 function handleSubmitCode(msg) {
