@@ -12,13 +12,23 @@ const selectedUserId = ref(null)
 const messageCache = ref([])
 let pendingMessages = ref([])
 const submitCodeCallbacks = ref([])
+const matchCallbacks = ref([])
 
 export function registerSubmitCodeCallback(callback) {
   submitCodeCallbacks.value.push(callback)
-  console.log("注册了一个回调，当前回调总数：", submitCodeCallbacks.value.length)
+  console.log("注册了代码状态回调函数，当前回调总数：", submitCodeCallbacks.value.length)
   // 返回注销函数，避免组件卸载后仍执行
   return () => {
     submitCodeCallbacks.value = submitCodeCallbacks.value.filter(cb => cb !== callback)
+  }
+}
+
+export function registerMatchCallback(callback) {
+  matchCallbacks.value.push(callback)
+  console.log("注册了匹配结果回调函数，当前回调总数：", matchCallbacks.value.length)
+
+  return () => {
+    matchCallbacks.value = matchCallbacks.value.filter(cb => cb !== callback)
   }
 }
 
@@ -50,7 +60,7 @@ export function initWebSocket(token) {
     console.log("onmessage", msg)
     switch (msg.type) { 
       case "match_success":
-        handleMatch_success(msg)
+        handleMatchSuccess(msg)
         break;
       case "chat":
         handleChat(msg)
@@ -104,8 +114,13 @@ function handleOnlineStatus(msg) {
   console.log("Ws online msg", msg)
 }
 
-function handleMatch_success(msg) { 
+function handleMatchSuccess(msg) { 
   console.log("handleMatch_success: ", msg)
+
+  matchCallbacks.value.forEach(callback => {
+    console.log("匹配成功回调...")
+    callback(msg)
+  })
 }
 
 function handleSubmitCode(msg) {
@@ -172,7 +187,8 @@ export function useWebSocketContext() {
     followedUsers,
     selectedUserId,
     sendMessage,
-    registerSubmitCodeCallback
+    registerSubmitCodeCallback,
+    registerMatchCallback
   }
 }
 

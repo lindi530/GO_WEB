@@ -145,6 +145,7 @@ import api from '@/api/index.js'
 // 注意：请确认头像路径是否正确，若路径不同需修改
 import imgDefault from "@/assets/1.png";
 import { useStore } from 'vuex';
+import { useWebSocketContext } from '@/composables/useWebSocket.js'
 
 // 接收外部传入的对战类型
 const props = defineProps({
@@ -171,13 +172,12 @@ const leftPlayer = ref({
   "avatar": computed(() => store.getters['user/userAvatar']),
   "name": computed(() => store.getters['user/userName']),
   "level": "",
-  "rating": "",
-  "total_matches": "",
-  "wins": "",
+  "rating": 0,
+  "total_matches": 0,
+  "wins": 0,
 });
 
 onMounted(async() => { 
-  // 获取评论
   const resp = await api.getUserSaberStats(props.postId)
   if (resp.code === 0) {
     let data = resp.data
@@ -192,13 +192,39 @@ onMounted(async() => {
 })
 
 const rightPlayer = ref({
-  "avatar": imgDefault,
-  "name": "lindi",
-  "level": "青铜",
-  "rating": 1500,
-  "场数": 20,
-  "胜率": 50,
+  "avatar": "",
+  "name": "",
+  "level": "",
+  "rating": 0,
+  "total_matches": 0,
+  "wins": 0,
 });
+
+const { registerMatchCallback } = useWebSocketContext()
+
+const unregister = registerMatchCallback((msg) => {
+  // 根据 msg 中的信息，决定要设置的状态值
+  console.log("Code Editor: ", msg)
+ 
+  handleRightPlayer(msg) // 调用组件内的更新函数
+
+})
+
+const roomID = ref('')
+const problemID = ref(0)
+
+const handleRightPlayer = (msg) => {
+  rightPlayer.value.avatar = msg.opponent.avatar
+  rightPlayer.value.name = msg.opponent.user_name
+  rightPlayer.value.level = msg.opponent.level
+  rightPlayer.value.rating = msg.opponent.rating
+  rightPlayer.value.total_matches = msg.opponent.total_matches
+  rightPlayer.value.wins = msg.opponent.wins
+
+  roomID.value = msg.room_id
+  problemID.value = msg.problem_id
+}
+
 
 // 格式化匹配时间为 MM:SS
 const formattedMatchTime = computed(() => {
