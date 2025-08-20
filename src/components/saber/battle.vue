@@ -50,23 +50,31 @@
       <!-- 中间VS区域及匹配时间 -->
       <div class="vs-wrapper">
         <div class="match-status-bar" v-if="isMatching">
-          <div class="loader-small">
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
+          <div class="status-content">
+            <div class="status-row">
+              <div class="loader-small">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+              </div>
+              <span class="status-text">匹配中</span>
+            </div>
+
+
+            <div class="status-row">
+              <div class="match-time-display">
+                <span class="time-value">{{ formattedMatchTime }}</span>
+              </div>
+            </div>
+
+            <div class="status-row">
+              <div class="players-count">
+                <span class="players-label">已找到:</span>
+                <span class="players-value">{{ foundPlayers }}/2</span>
+              </div>
+            </div>
+
           </div>
-          <span class="status-text">正在寻找对手...</span>
-          <div class="match-time-display">
-            <span class="time-label">匹配时间:</span>
-            <span class="time-value">{{ formattedMatchTime }}</span>
-          </div>
-          <div class="players-count">
-            <span class="players-label">已找到:</span>
-            <span class="players-value">{{ foundPlayers }}/2</span>
-          </div>
-          <button class="cancel-btn-small" @click="cancelMatch">
-            取消
-          </button>
         </div>
         
         <div class="vs-container">
@@ -118,16 +126,17 @@
     
     <!-- 底部按钮区域 -->
     <div class="bottom-area">
-      <button class="action-btn" 
-          :class="isMatching ? 'matching-btn' : battleType === '天人对战' ? 'friend-btn' : 'match-btn'" 
-          @click="handleMatch">
-        <i :class="isMatching ? 'icon-loading' : battleType === '好友对战' ? 'icon-friend' : 'icon-game'"></i>
+      <button 
+        class="action-btn" 
+        :class="isMatching ? 'matching-btn cancel-match-btn' : (battleType === '天人对战' ? 'friend-btn' : 'match-btn')" 
+        @click="handleMatchOrCancel"
+      >
+
+        <i :class="isMatching ? 'icon-loading' : (battleType === '好友对战' ? 'icon-friend' : 'icon-game')"></i>
         <span>
           {{ isMatching 
-            ? '匹配中...' 
-            : battleType === '好友对战' 
-              ? '邀请好友' 
-              : '开始匹配' 
+            ? '取消匹配'  // 匹配中显示“取消匹配”
+            : (battleType === '好友对战' ? '邀请好友' : '开始匹配') 
           }}
         </span>
       </button>
@@ -156,7 +165,7 @@ const props = defineProps({
 });
 
 // 定义对外暴露的事件（移除了点击相关事件）
-const emit = defineEmits(['back-to-menu', 'match', 'cancel-match']);
+const emit = defineEmits(['back-to-menu']);
 
 // 匹配状态管理
 const isMatching = ref(false);
@@ -235,13 +244,18 @@ const formattedMatchTime = computed(() => {
 
 // 返回菜单事件
 const handleBackToMenu = () => {
+  stopMatchProcess();
   emit('back-to-menu');
   console.log('返回菜单按钮被点击');
 };
 
 // 开始匹配事件
-const handleMatch = async() => {
-  if (isMatching.value) return;
+const handleMatchOrCancel = async() => {
+  if (isMatching.value) { 
+    stopMatchProcess();
+    console.log('取消匹配');
+    return
+  }
   
   isMatching.value = true;
   matchTimeSeconds.value = 0;
@@ -261,16 +275,8 @@ const handleMatch = async() => {
   
   // 模拟寻找对手（3-10秒随机）
   // simulateFindingPlayers();
-  
-  emit('match');
-  console.log('开始匹配');
-};
 
-// 取消匹配事件
-const cancelMatch = () => {
-  stopMatchProcess();
-  emit('cancel-match');
-  console.log('取消匹配');
+  console.log('开始匹配');
 };
 
 // 停止匹配流程（清除计时器）
@@ -406,6 +412,14 @@ onMounted(() => {
   background: transparent;
 }
 
+.action-btn.cancel-match-btn {
+  background-color: #ff4d4f; /* 红色系，代表取消/危险操作 */
+  border-color: #ff4d4f;
+}
+.action-btn.cancel-match-btn:hover {
+  background-color: #ff7875;
+}
+
 .top-content {
   width: 100%;
   max-width: 1200px;
@@ -462,8 +476,11 @@ onMounted(() => {
 /* 匹配状态条（匹配中显示） */
 .match-status-bar {
   display: flex;
+  flex-direction: column;
+  gap: 8px; /* 行与行之间的间距 */
+
   align-items: center;
-  gap: 10px;
+
   padding: 3px 8px;
   background-color: rgba(15, 52, 96, 0.5);
   border-radius: 6px;
@@ -472,6 +489,25 @@ onMounted(() => {
   animation: slideDown 0.3s ease-out;
   z-index: 5;
   margin-bottom: 5px;
+}
+
+.status-content {
+  /* 使内容垂直排列 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 行与行之间的间距 */
+  align-items: center; /* 水平居中对齐 */
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 元素之间的间距 */
+}
+
+.loader-small {
+  display: flex;
+  gap: 4px;
 }
 
 @keyframes slideDown {
@@ -488,8 +524,8 @@ onMounted(() => {
 }
 
 .loader-dot {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: #3a86ff;
   animation: bounceSmall 1.5s infinite ease-in-out;
@@ -532,7 +568,8 @@ onMounted(() => {
 }
 
 .time-value {
-  color: #3a86ff;
+  color: #409eff;
+  font-size: 24px; 
   font-weight: 600;
   font-family: 'Courier New', monospace;
   min-width: 40px;

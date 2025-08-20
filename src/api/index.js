@@ -44,61 +44,64 @@ export default {
     return request.delete(`/users/${targetUserId}/follow`)
   },
   getPostByPostId(postId) {
-    return request.get(`posts/${postId}`)
+    return request.get(`/posts/${postId}`)
   },
   getPostComments(postId) {
-    return request.get(`posts/${postId}/comments`)
+    return request.get(`/posts/${postId}/comments`)
   },
   createPostComment(postId, newPost) {
-    return request.post(`posts/${postId}/comments`, newPost)
+    return request.post(`/posts/${postId}/comments`, newPost)
   },
   likeComment(commentId) { 
-    return request.post(`comment/${commentId}/like`)
+    return request.post(`/comment/${commentId}/like`)
   },
   unlikeComment(commentId) {
-    return request.post(`comment/${commentId}/unlike`)
+    return request.post(`/comment/${commentId}/unlike`)
   },
   deleteComment(commentId) {
-    return request.delete(`posts/comments/${commentId}`)
+    return request.delete(`/posts/comments/${commentId}`)
   },
   validateAccessToken() {
-    return request.get(`auth/validate/access_token`)
+    return request.get(`/auth/validate/access_token`)
   },
   validateRefreshToken(formData) {
-    return request.post(`auth/validate/refresh_token`, formData)
+    return request.post(`/auth/validate/refresh_token`, formData)
   },
   likePost(postId) {
-    return request.post(`posts/${postId}/like`)
+    return request.post(`/posts/${postId}/like`)
   },
   unLikePost(postId) {
-    return request.post(`posts/${postId}/unlike`)
+    return request.post(`/posts/${postId}/unlike`)
   },
   onlineState() {
-    return request.post(`users/online`)
+    return request.post(`/users/online`)
   },
   getMessageByTargetId(targetId) { 
-    return request.get(`message/${targetId}`)
+    return request.get(`/message/${targetId}`)
   },
   getFollowUserList() {
-    return request.get(`follow/userlist`)
+    return request.get(`/follow/userlist`)
   },
   getProblemDetail(problemID) {
-    return request.get(`problems/${problemID}`)
+    return request.get(`/problems/${problemID}`)
   },
   getProblemList() {
-    return request.get(`problems`)
+    return request.get(`/problems`)
   },
   submitCode(problemID, data) { 
-    return request.post(`problems/${problemID}/submit`, data)
+    return request.post(`/problems/${problemID}/submit`, data)
   },
   submitExample(problemID, data) { 
-    return request.post(`problems/${problemID}/submit/example`, data)
+    return request.post(`/problems/${problemID}/submit/example`, data)
   },
   match() {
-    return request.post(`match`)
+    return request.post(`/match`)
+  },
+  cancelMatch() {
+    return request.post(`/match/cancel`)
   },
   getUserSaberStats() { 
-    return request.get(`saber/info`)
+    return request.get(`/saber/info`)
   }
   // 这里按需继续扩展接口
 };
