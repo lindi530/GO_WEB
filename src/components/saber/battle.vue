@@ -1,5 +1,18 @@
 <template>
   <div class="layout-container">
+    <!-- 匹配成功特效提示 - 改为在对战区域内显示 -->
+    <div 
+      class="match-success-overlay" 
+      v-if="showMatchSuccess"
+      :class="{ 'fade-out': isFadingOut }"
+    >
+      <div class="success-content">
+        <div class="success-icon">✦</div>
+        <div class="success-text">匹配成功！</div>
+        <div class="success-subtext">即将进入对战...</div>
+      </div>
+    </div>
+    
     <div class="top-area">
       <div class="top-content">
         <div class="page-title">{{ battleType }}</div>
@@ -7,7 +20,7 @@
     </div>
     
     <div class="middle-area" ref="middleAreaRef">
-      <!-- 左侧玩家区域 - 无点击事件，保留悬停效果 -->
+      <!-- 左侧玩家区域 -->
       <div class="player-container" >
         <div class="effect-wrapper" :class="{ 'hover-active': isLeftHovered && !isMatching }">
           <div class="player-box" 
@@ -83,7 +96,7 @@
         </div>
       </div>
       
-      <!-- 右侧玩家区域 - 无点击事件，保留悬停效果 -->
+      <!-- 右侧玩家区域 -->
       <div class="player-container" >
         <div class="effect-wrapper" :class="{ 'hover-active': isRightHovered && !isMatching }">
           <div class="player-box" 
@@ -151,7 +164,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watchEffect, computed } from 'vue';
 import api from '@/api/index.js'
-// 注意：请确认头像路径是否正确，若路径不同需修改
 import imgDefault from "@/assets/1.png";
 import { useStore } from 'vuex';
 import { useWebSocketContext } from '@/composables/useWebSocket.js'
@@ -164,8 +176,8 @@ const props = defineProps({
   },
 });
 
-// 定义对外暴露的事件（移除了点击相关事件）
-const emit = defineEmits(['back-to-menu']);
+// 定义对外暴露的事件
+const emit = defineEmits(['back-to-menu', 'update_match_success', 'to-battle-game']);
 
 // 匹配状态管理
 const isMatching = ref(false);
@@ -174,9 +186,13 @@ const foundPlayers = ref(0);
 let matchTimer = null;
 let playerFoundTimer = null;
 
+// 匹配成功特效相关变量
+const showMatchSuccess = ref(false);
+const isFadingOut = ref(false);
+
 
 const store = useStore();
-// 左右玩家数据（可根据实际需求从接口获取）
+// 左右玩家数据
 const leftPlayer = ref({
   "avatar": computed(() => store.getters['user/userAvatar']),
   "name": computed(() => store.getters['user/userName']),
@@ -211,18 +227,13 @@ const rightPlayer = ref({
 
 const { registerMatchCallback } = useWebSocketContext()
 
-const unregister = registerMatchCallback((msg) => {
-  // 根据 msg 中的信息，决定要设置的状态值
-  console.log("Code Editor: ", msg)
- 
-  handleRightPlayer(msg) // 调用组件内的更新函数
 
+const unregister = registerMatchCallback((msg) => {
+  console.log("Code Editor: ", msg)
+  handleMatchSuccess(msg)
 })
 
-const roomID = ref('')
-const problemID = ref(0)
-
-const handleRightPlayer = (msg) => {
+const handleMatchSuccess = (msg) => {
   rightPlayer.value.avatar = msg.opponent.avatar
   rightPlayer.value.name = msg.opponent.user_name
   rightPlayer.value.level = msg.opponent.level
@@ -230,8 +241,32 @@ const handleRightPlayer = (msg) => {
   rightPlayer.value.total_matches = msg.opponent.total_matches
   rightPlayer.value.wins = msg.opponent.wins
 
-  roomID.value = msg.room_id
-  problemID.value = msg.problem_id
+  foundPlayers.value = 2
+
+  // 触发匹配成功特效
+  triggerMatchSuccessEffect();
+  console.log("MMMM:", msg)
+  // 延迟发送匹配成功事件，等待特效展示完成
+  setTimeout(() => {
+    emit('to-battle-game', msg.room_id, msg.problem_id)
+  }, 5000);
+}
+
+// 触发匹配成功特效
+const triggerMatchSuccessEffect = () => {
+  showMatchSuccess.value = true;
+  isFadingOut.value = false;
+  stopMatchProcess();
+  
+  // 2.5秒后开始淡出效果
+  setTimeout(() => {
+    isFadingOut.value = true;
+  }, 4000);
+  
+  // 3秒后隐藏整个提示
+  setTimeout(() => {
+    showMatchSuccess.value = false;
+  }, 5000);
 }
 
 
@@ -259,7 +294,7 @@ const handleMatchOrCancel = async() => {
   
   isMatching.value = true;
   matchTimeSeconds.value = 0;
-  foundPlayers.value = 1; // 初始已找到自己
+  foundPlayers.value = 1;
   
   // 启动匹配计时器
   matchTimer = setInterval(() => {
@@ -273,9 +308,6 @@ const handleMatchOrCancel = async() => {
     console.log("发送匹配请求失败：", resp.message)
   }
   
-  // 模拟寻找对手（3-10秒随机）
-  // simulateFindingPlayers();
-
   console.log('开始匹配');
 };
 
@@ -290,19 +322,6 @@ const stopMatchProcess = () => {
     clearTimeout(playerFoundTimer);
     playerFoundTimer = null;
   }
-};
-
-// 模拟寻找对手（随机延迟后找到对手）
-const simulateFindingPlayers = () => {
-  const randomDelay = Math.floor(Math.random() * 8000) + 3000; // 3-10秒
-  playerFoundTimer = setTimeout(() => {
-    foundPlayers.value = 2; // 找到对手
-    // 2秒后自动结束匹配（模拟进入游戏）
-    setTimeout(() => {
-      stopMatchProcess();
-      console.log('匹配成功，准备进入游戏');
-    }, 2000);
-  }, randomDelay);
 };
 
 // 玩家区域悬停状态管理
@@ -399,6 +418,116 @@ onMounted(() => {
   padding: 0;
   background: transparent;
   pointer-events: auto;
+  position: relative; /* 新增：作为特效的定位父元素 */
+}
+
+/* 匹配成功特效样式 - 修改为框内显示 */
+.match-success-overlay {
+  position: absolute; /* 改为绝对定位，相对于布局容器 */
+  top: 80px; /* 顶部标题栏高度 */
+  bottom: 70px; /* 底部按钮栏高度 */
+  left: 0;
+  right: 0;
+  /* background-color: rgba(214, 217, 219, 0); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+  animation: pulseBackground 4s infinite alternate;
+  border-radius: 8px; /* 添加边框圆角 */
+  margin: 10px; /* 与容器保持距离 */
+  /* box-shadow: 0 0 20px rgba(58, 134, 255, 0.3); 添加内阴影增强边框感 */
+}
+
+.match-success-overlay.fade-out {
+  opacity: 0;
+}
+
+.success-content {
+  text-align: center;
+  transform: scale(0.8);
+  animation: popIn 0.5s forwards, float 4s ease-in-out;
+}
+
+.success-icon {
+  font-size: 60px;
+  color: #4ade80;
+  margin-bottom: 20px;
+  text-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+  animation: spin 5s linear infinite;
+}
+
+.success-text {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(58, 134, 255, 0.8);
+  
+  /* 渐变背景设置 */
+  background: linear-gradient(90deg, 
+    rgba(58, 134, 255, 0) 0%,  /* 开始透明 */
+    #3a86ff 25%,              /* 蓝色 */
+    #8338ec 50%,              /* 紫色 */
+    #4ade80 75%,              /* 绿色 */
+    rgba(74, 222, 128, 0) 100% /* 结束透明 */
+  );
+  background-size: 200% auto; /* 扩展背景尺寸以实现流畅动画 */
+  
+  /* 文字裁剪 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  
+  /* 应用动画 */
+  animation: textGradientFlow 5s linear infinite;
+}
+
+.success-subtext {
+  font-size: 20px;
+  color: #e0e7ff;
+  text-shadow: 0 0 5px rgba(58, 134, 255, 0.5);
+}
+
+/* 匹配成功特效动画 */
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes pulseBackground {
+  
+  from { background-color: rgba(223,244,255, 0.5); }
+  to { background-color: rgba(223,244,255, 0.8); }
+}
+
+@keyframes textShine {
+  0% { 
+    background-position: -100% center; /* 起始位置在左侧完全不可见 */
+  }
+  100% { 
+    background-position: 100% center; /* 结束位置在右侧完全不可可见 */
+  }
+}
+
+@keyframes textGradientFlow {
+  0% {
+    background-position: 0% 50%; /* 起始位置在最左侧 */
+  }
+  100% {
+    background-position: 100% 50%; /* 结束位置在最右侧 */
+  }
 }
 
 /* 顶部标题区域 */
@@ -410,6 +539,7 @@ onMounted(() => {
   align-items: center;
   padding: 0 20px;
   background: transparent;
+  z-index: 10; /* 确保在特效下方 */
 }
 
 .action-btn.cancel-match-btn {
@@ -843,7 +973,7 @@ onMounted(() => {
   gap: 24px;
   padding: 0 20px;
   position: relative;
-  z-index: 10;
+  z-index: 10; /* 确保在特效下方 */
   background: transparent;
 }
 
@@ -904,7 +1034,7 @@ onMounted(() => {
   box-shadow: 0 6px 15px rgba(148, 163, 184, 0.3);
 }
 
-/* 按钮图标（用伪元素实现，无需额外图标库） */
+/* 按钮图标 */
 .icon-game::before { content: "🎮"; }
 .icon-friend::before { content: "👥"; }
 .icon-loading::before { content: "🔄"; animation: spin 1.5s linear infinite; }
@@ -973,6 +1103,19 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
   }
+  
+  /* 匹配成功响应式调整 */
+  .success-text {
+    font-size: 36px;
+  }
+  
+  .success-icon {
+    font-size: 48px;
+  }
+  
+  .success-subtext {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -1014,6 +1157,15 @@ onMounted(() => {
   
   .avatar-wrapper {
     width: 50%;
+  }
+  
+  /* 匹配成功响应式调整 */
+  .success-text {
+    font-size: 28px;
+  }
+  
+  .success-icon {
+    font-size: 40px;
   }
 }
 </style>

@@ -1,9 +1,8 @@
-// src/views/ProblemView.vue
 <template>
   <div
-  class="container-fluid px-5 py-4 page-container"
-  style="height: 90vh; overflow-y: auto; padding-bottom: 0; margin-bottom: 0;"
->
+    class="container-fluid px-5 py-4 page-container"
+    style="height: 100%; overflow-y: auto; padding-bottom: 0; margin-bottom: 0;"
+  >
     <div class="row justify-content-center">
       <div class="col-12">
         <div class="d-flex" style="gap: 24px;">
@@ -17,20 +16,12 @@
             <CodeEditor 
               :problem-id="problemID"
             />
-            <!-- <SampleTest
-              :sample-input="sampleInput"
-              :output="sampleOutput"
-              :status="runStatus"
-              :run-function="runSampleTest"
-            /> -->
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -44,15 +35,25 @@ const problem = ref(null)
 const loading = ref(true)
 const route = useRoute()
 
-// 从 URL 获取 problemID
-const problemID = route.params.problem_id
+const props = defineProps({
+  problemId: {
+    type: Number,
+    required: true,
+  },
+})
+
+// 修复：统一转换为Number类型，避免类型不匹配
+const problemID = ref(
+  typeof route.params.problem_id !== 'undefined' 
+    ? Number(route.params.problem_id) 
+    : props.problemId
+);
 
 onMounted(async () => {
   try {
-    const res = await api.getProblemDetail(problemID)
+    const res = await api.getProblemDetail(problemID.value)
     if (res.code === 0) {
       problem.value = res.data
-      console.log(problem.value)
     } else {
       console.error('获取题目失败:', res.data)
     }
@@ -62,25 +63,22 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
 </script>
 
 <style scoped>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
-.container-fluid {
-  height: 100vh;
-  overflow-y: auto;
-}
-
+/* 移除全局样式污染，避免影响父组件 */
 .page-container {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative; /* 确保在父级堆叠上下文中 */
+  z-index: 1; /* 提升自身层级 */
 }
 
+/* 确保内容区域不被裁剪 */
+.container-fluid {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
 </style>

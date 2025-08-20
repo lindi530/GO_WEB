@@ -14,6 +14,7 @@
       </n-space>
     </template>
 
+    <!-- 编辑器容器：使用flex布局确保占满可用空间 -->
     <div ref="editorContainer" class="editor-container mb-3">
       <MonacoEditor
         v-if="editorReady"
@@ -51,7 +52,7 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick, defineAsyncComponent } from 'vue'
 import { NCard, NSelect, NButton, NSpace, useMessage } from 'naive-ui'
-import { useIntersectionObserver } from '@vueuse/core' // 从 vueuse 导入
+import { useIntersectionObserver } from '@vueuse/core'
 import api from '@/api'
 import SampleTest from './SampleTest.vue'
 import { useWebSocketContext } from '@/composables/useWebSocket.js'
@@ -73,7 +74,7 @@ const internalLang = ref('cpp')
 const internalCode = ref('')
 const editorReady = ref(false)
 const editorContainer = ref(null)
-const editorHeight = ref(400)
+const editorHeight = ref(0) // 初始化为0，由父容器计算决定
 const theme = ref('vs-light')
 const userEdited = ref(false)
 const message = useMessage()
@@ -84,7 +85,6 @@ const activeStatus = ref('')
 const outputValue = ref('')
 const { registerSubmitCodeCallback } = useWebSocketContext()
 
-
 // 存储 ResizeObserver 实例
 let resizeObserver = null
 
@@ -94,6 +94,32 @@ function defaultCode(lang) {
     python: `class Solution:\n    def twoSum(self, nums, target):\n        pass`,
     go: `package main\n\nimport(\n  \"fmt\"\n)\n\nfunc main() {\n}`
   }[lang] || ''
+}
+
+// 计算编辑器可用高度（减去其他元素占用的空间）
+const calculateEditorHeight = () => {
+  if (!editorContainer.value) return 0
+  
+  // 获取父容器高度
+  const containerRect = editorContainer.value.parentElement.getBoundingClientRect()
+  
+  // 计算其他元素占用的高度（卡片头部、按钮区域、测试区域）
+  const headerHeight = 60 // 卡片头部大致高度
+  const buttonAreaHeight = 50 // 按钮区域高度
+  const testAreaHeight = 200 // 测试区域大致高度
+  const padding = 30 // 内边距总和
+  
+  // 计算可用高度
+  const availableHeight = containerRect.height - headerHeight - buttonAreaHeight - testAreaHeight - padding
+  return Math.max(300, availableHeight) // 确保最小高度为300px
+}
+
+// 监听容器尺寸变化并更新编辑器高度
+const handleContainerResize = () => {
+  if (editorContainer.value) {
+    const newHeight = calculateEditorHeight()
+    editorHeight.value = newHeight
+  }
 }
 
 const handleTestSample = (value) => {
@@ -114,20 +140,13 @@ const handleRunExample = async (value) => {
     }
   )
   if (resp.code === 0) {
-    console.log("得到样例输出")
     outputValue.value = resp.data.output;
-  } else {
-
   }
-
 }
 
 const unregister = registerSubmitCodeCallback((msg) => {
-  // 根据 msg 中的信息，决定要设置的状态值
-  // 假设 msg 中有 content 字段（如 'pending'、'running'、'accepted' 等）
-  console.log("Code Editor: ", msg)
   if (msg.content) {
-    handleActiveStatus(msg.content) // 调用组件内的更新函数
+    handleActiveStatus(msg.content)
   }
 })
 
@@ -148,96 +167,81 @@ async function submitCode() {
   handleTestSample(false)
   handleActiveStatus("")
 
-
-  console.log("problemID:", props.problemId)
   try {
-    
     const resp = await api.submitCode(
       props.problemId,
       {
         "language": internalLang.value,
         "code": internalCode.value,
       })
-
-    if (resp.code === 0) { 
-      console.log("得到返回结果")
-    } else {
-    }
   } catch (error) {
     message.error('提交失败：' + error.message)
   } finally {
-    isLoading.value = false  // 无论成功或失败都重置加载状态
+    isLoading.value = false
   }
-
 }
 
-watch(internalLang, (newLang, oldLang) => {
+watch(internalLang, (newLang) => {
   internalCode.value = defaultCode(newLang)
 })
 
-// 监听代码变化，标记用户是否编辑过
 watch(internalCode, () => {
   if (!userEdited.value) {
     userEdited.value = true
   }
 })
 
+// 编辑器配置：启用自动布局
 const editorOptions = {
   minimap: { enabled: false },
-  automaticLayout: false, // 禁用自动布局，改用手动控制
-  scrollBeyondLastLine: false
+  automaticLayout: true, // 关键：启用自动布局适应容器变化
+  scrollBeyondLastLine: false,
+  fontSize: 14
 }
 
 onMounted(async () => {
-  // 初始设置默认代码
   internalCode.value = defaultCode(internalLang.value)
-  
-  // 等待容器渲染完成后再初始化编辑器
   await nextTick()
   
-  // 初始化 ResizeObserver 监听容器尺寸变化
+  // 初始化时计算一次高度
+  handleContainerResize()
+  
+  // 监听容器尺寸变化（包括父组件大小变化）
   if ('ResizeObserver' in window) {
     resizeObserver = new ResizeObserver(entries => {
-      // 使用 requestAnimationFrame 避免布局抖动
       requestAnimationFrame(() => {
-        if (entries[0] && entries[0].contentRect) {
-          // 更新编辑器高度（可选）
-          editorHeight.value = entries[0].contentRect.height
-        }
+        handleContainerResize()
       })
     })
     
-    // 开始监听容器尺寸变化
-    if (editorContainer.value) {
-      resizeObserver.observe(editorContainer.value)
+    if (editorContainer.value && editorContainer.value.parentElement) {
+      // 监听父元素的尺寸变化（关键）
+      resizeObserver.observe(editorContainer.value.parentElement)
     }
   }
   
-  // 使用 IntersectionObserver 检测编辑器是否在视口中
   const { stop } = useIntersectionObserver(
     editorContainer,
     ([{ isIntersecting }]) => {
       isEditorVisible.value = isIntersecting
       
-      // 当编辑器进入视口时延迟初始化
       if (isIntersecting && !editorReady.value) {
         setTimeout(() => {
           editorReady.value = true
+          // 可见时再计算一次高度
+          handleContainerResize()
         }, 100)
       }
     }
   )
   
-  // 组件销毁时停止观察
   onUnmounted(() => {
     stop()
-  },
-
-  )
+    unregister()
+  })
 })
 
 onUnmounted(() => {
-  // 清理 ResizeObserver
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
@@ -257,6 +261,15 @@ onUnmounted(() => {
 }
 .editor-container {
   width: 100%;
-  height: 400px; /* 默认高度，会被 ResizeObserver 更新 */
+  /* 关键：使用100%高度而不是固定值 */
+  height: 100%;
+  min-height: 300px; /* 确保最小高度 */
+}
+
+/* 确保父容器可以被正确计算高度 */
+:deep(.n-card__content) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 </style>
