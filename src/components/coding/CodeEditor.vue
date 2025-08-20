@@ -61,7 +61,8 @@ const MonacoEditor = defineAsyncComponent(() => import('monaco-editor-vue3'))
 
 // props + emit
 const props = defineProps({
-  problemId: Number
+  problemId: Number,
+  roomId: String,
 })
 
 const langOptions = [
@@ -168,12 +169,23 @@ async function submitCode() {
   handleActiveStatus("")
 
   try {
-    const resp = await api.submitCode(
+    if (typeof props.roomId !== 'undefined') {
+      console.log("props.roomId: ", props.roomId)
+      const resp = await api.saberSubmit(
+        {
+          "room_id": props.roomId,
+          "language": internalLang.value,
+          "code": internalCode.value,
+        })
+    } else {
+      const resp = await api.submitCode(
       props.problemId,
       {
         "language": internalLang.value,
         "code": internalCode.value,
       })
+    }
+    
   } catch (error) {
     message.error('提交失败：' + error.message)
   } finally {

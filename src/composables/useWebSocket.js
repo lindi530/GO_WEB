@@ -1,6 +1,7 @@
 // useWebSocket.js
 import { ref, toHandlerKey } from 'vue'
 import api from '@/api'
+import { call } from 'naive-ui/es/_utils'
 
 let ws = null
 let isConnected = false
@@ -13,10 +14,17 @@ const messageCache = ref([])
 let pendingMessages = ref([])
 const submitCodeCallbacks = ref([])
 const matchCallbacks = ref([])
+const saberResultCallbacks = ref([])
+
+export function registersaberResultCallback(callback) { 
+  saberResultCallbacks.value.push(callback)
+  return () => {
+    saberResultCallbacks.value = saberResultCallbacks.value.filter(cb => cb !== callback)
+  }
+}
 
 export function registerSubmitCodeCallback(callback) {
   submitCodeCallbacks.value.push(callback)
-  console.log("注册了代码状态回调函数，当前回调总数：", submitCodeCallbacks.value.length)
   // 返回注销函数，避免组件卸载后仍执行
   return () => {
     submitCodeCallbacks.value = submitCodeCallbacks.value.filter(cb => cb !== callback)
@@ -25,7 +33,6 @@ export function registerSubmitCodeCallback(callback) {
 
 export function registerMatchCallback(callback) {
   matchCallbacks.value.push(callback)
-  console.log("注册了匹配结果回调函数，当前回调总数：", matchCallbacks.value.length)
 
   return () => {
     matchCallbacks.value = matchCallbacks.value.filter(cb => cb !== callback)
@@ -71,6 +78,9 @@ export function initWebSocket(token) {
       case "online_status":
         handleOnlineStatus(msg)
         break;
+      case "saber_result":
+        handleSaberResult(msg)
+        break;
     }
   }
   // 链接关闭
@@ -105,30 +115,30 @@ export function closeWebSocket() {
   pendingMessages.value = []
   messageCache.value = []
   submitCodeCallbacks.value = []
+  matchCallbacks.value = []
+  saberResultCallbacks.value = []
+}
+
+function handleSaberResult(msg) {
+  saberResultCallbacks.value.forEach(callback => {
+    console.log("saber result")
+    callback(msg)
+  })
 }
 
 function handleOnlineStatus(msg) {
   var user = followedUsers.value.find(user => user.user_id === msg.from);
   user.online_state = msg.online_state
-
-  console.log("Ws online msg", msg)
 }
 
 function handleMatchSuccess(msg) { 
-  console.log("handleMatch_success: ", msg)
-
   matchCallbacks.value.forEach(callback => {
-    console.log("匹配成功回调...")
     callback(msg)
   })
 }
 
 function handleSubmitCode(msg) {
-  console.log("进入handleSubmitCode，消息：", msg)
-  console.log("当前注册的回调数量：", submitCodeCallbacks.value.length)
-  
   submitCodeCallbacks.value.forEach(callback => {
-    console.log("准备执行回调...")
     callback(msg)
   })
 }
@@ -188,7 +198,8 @@ export function useWebSocketContext() {
     selectedUserId,
     sendMessage,
     registerSubmitCodeCallback,
-    registerMatchCallback
+    registerMatchCallback,
+    registersaberResultCallback,
   }
 }
 

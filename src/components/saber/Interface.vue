@@ -85,6 +85,7 @@
                 v-if="currentView === 'match_success'"
                 :room-id="roomId"
                 :problem-id="problemId"
+                @back-to-menu="handleBackToMenu"
               />
             </div>
             

@@ -15,6 +15,7 @@
           <div class="flex-fill" style="max-width: 50%;">
             <CodeEditor 
               :problem-id="problemID"
+              :room-id="roomId"
             />
           </div>
         </div>
@@ -30,6 +31,7 @@ import ProblemDetail from '@/components/coding/ProblemDetail.vue'
 import CodeEditor from '@/components/coding/CodeEditor.vue'
 import api from '@/api'
 
+console.log("problem View")
 // 当前题目
 const problem = ref(null)
 const loading = ref(true)
@@ -40,6 +42,11 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  roomId: {
+    type: String,
+    required: true,
+  },
+
 })
 
 // 修复：统一转换为Number类型，避免类型不匹配

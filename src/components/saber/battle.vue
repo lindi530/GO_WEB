@@ -245,7 +245,6 @@ const handleMatchSuccess = (msg) => {
 
   // 触发匹配成功特效
   triggerMatchSuccessEffect();
-  console.log("MMMM:", msg)
   // 延迟发送匹配成功事件，等待特效展示完成
   setTimeout(() => {
     emit('to-battle-game', msg.room_id, msg.problem_id)

@@ -102,6 +102,9 @@ export default {
   },
   getUserSaberStats() { 
     return request.get(`/saber/info`)
-  }
+  },
+  saberSubmit(data) {
+    return request.post(`saber/submit`, data)
+  },
   // 这里按需继续扩展接口
 };
