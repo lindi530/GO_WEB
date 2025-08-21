@@ -115,6 +115,5 @@ export default {
   joinRoom(roomID) {
     return request.post(`saber/rooms/join/${roomID}`)
   }
-  
   // 这里按需继续扩展接口
 };

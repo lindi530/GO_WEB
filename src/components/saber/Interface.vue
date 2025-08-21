@@ -76,6 +76,7 @@
                 v-if="currentView === 'battle'"
                 :battle-type="currentBattleType"
                 :base-scale="scaleRatio"
+                :battle-state="battleState"
                 @back-to-menu="handleBackToMenu"
                 @to-battle-game="handleToBattleGame"
                 @update-match-success="updateMatchSuccess"
@@ -125,6 +126,12 @@ const props = defineProps({
 // battle
 const roomId = ref("")
 const problemId = ref(null)
+const battleState = ref(false)
+
+const updateBattleState = ((val) => { 
+  console.log("updateBattleState")
+  battleState.value = val;
+})
 
 // 组件内部状态
 const showDialog = ref(false);
@@ -215,6 +222,7 @@ const updateHeaderHeight = () => {
 const bgImage = ref(menuBg);
 
 const handleBackToMenu = () => { 
+  battleState.value = false
   currentView.value = "menu";
   bgImage.value = menuBg;
   nextTick(updateHeaderHeight); // 视图切换后重新计算高度

@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watchEffect, computed, watch } from 'vue';
 import api from '@/api/index.js'
 import { useStore } from 'vuex';
 import { useWebSocketContext } from '@/composables/useWebSocket.js'
@@ -96,8 +96,7 @@ import VSCard from './VSCard.vue';
 import BottomControls from './BottomControls.vue';
 import RoomNumberModal from './RoomNumberModal.vue';
 import ReceiveInvite from './ReceiveInvite.vue';
-import { CanceledError } from 'axios';
-import { FastForwardFilled } from '@vicons/antd';
+
 
 // 接收外部传入的对战类型
 const props = defineProps({
@@ -108,7 +107,7 @@ const props = defineProps({
   postId: {
     type: [String, Number],
     required: true
-  }
+  },
 });
 
 // 定义对外暴露的事件
@@ -140,6 +139,7 @@ const autoAlertMessage = ref('该房间已销毁，请重新创建房间');
 const alertTitle = ref('房间已过期');
 const alertMessage = ref('抱歉，房间已超过有效期，请重新创建房间');
 const alertIcon = ref('⏰');
+
 
 const checkBattleType = () => {
   return props.battleType === "天人之战";
@@ -196,13 +196,26 @@ const { registerMatchCallback } = useWebSocketContext()
 
 
 const unregister = registerMatchCallback((msg) => {
-  console.log("Code Editor: ", msg)
   handleMatchSuccess(msg)
 })
 
+const stopAll = () => { 
+  // 关闭所有弹窗
+    showMatchSuccess.value = false;
+    showRoomModal.value = false;
+    showExpireAlert.value = false;
+    
+    // 停止所有计时器
+    stopMatchProcess();
+    stopRoomCountdown();
+    
+    // 重置匹配状态
+    isMatching.value = false;
+}
+
 const handleMatchSuccess = (msg) => {
-  // 停止房间倒计时
-  stopRoomCountdown();
+ 
+  stopAll()
   
   rightPlayer.value.avatar = msg.opponent.avatar
   rightPlayer.value.name = msg.opponent.user_name
@@ -407,6 +420,12 @@ const handleCancelInvitation = () => {
   // 只调用一次房间过期处理
   handleRoomExpired();
 };
+
+const handleReceiveInvite = () => { 
+  showRoomModal.value = false;
+  stopRoomCountdown();
+  stopMatchProcess();
+}
 
 // 停止匹配流程（清除计时器）
 const stopMatchProcess = () => {
@@ -674,3 +693,4 @@ onMounted(() => {
   }
 }
 </style>
+    
