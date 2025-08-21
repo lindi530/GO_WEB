@@ -234,7 +234,7 @@ const handleToBattleGame = (room_id, problem_id) => {
 
 // 按钮点击事件 - 切换到对战视图
 const handleHeavenBattle = () => {
-  currentBattleType.value = '天人对战';
+  currentBattleType.value = '天人之战';
   currentView.value = 'battle';
   bgImage.value = menuBg;
   nextTick(updateHeaderHeight); // 视图切换后重新计算高度

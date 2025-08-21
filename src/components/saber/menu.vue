@@ -11,7 +11,7 @@
       }"
       @click="$emit('heaven-battle')"
     >
-      天人对战
+      天人之战
     </button>
     <button 
       type="button" 
@@ -106,7 +106,7 @@ const emit = defineEmits(['heaven-battle', 'friend-battle']);
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 天人对战按钮样式 - 更纯的颜色减少模糊 */
+/* 天人之战按钮样式 - 更纯的颜色减少模糊 */
 .heaven-battle {
   color: #64b5f6;
 }

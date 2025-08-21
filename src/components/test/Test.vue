@@ -64,7 +64,7 @@
               :style="buttonStyle"
               @click.stop="handleHeavenBattle"
             >
-              天人对战
+              天人之战
             </button>
             <button 
               type="button" 
@@ -460,7 +460,7 @@ const closeDialog = () => {
 };
 
 const handleHeavenBattle = () => {
-  console.log('天人对战（待实现）');
+  console.log('天人之战（待实现）');
 };
 
 // 生命周期

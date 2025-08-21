@@ -21,9 +21,9 @@
     <div class="expire-alert" v-if="showExpireAlert">
       <div class="alert-backdrop" @click="showExpireAlert = false"></div>
       <div class="alert-content">
-        <div class="alert-icon">⏰</div>
-        <h3 class="alert-title">房间已过期</h3>
-        <p class="alert-message">抱歉，房间已超过有效期，请重新创建房间</p>
+        <div class="alert-icon">{{ alertIcon }}</div>
+        <h3 class="alert-title">{{ alertTitle }}</h3>
+        <p class="alert-message">{{ alertMessage }}</p>
         <button class="alert-btn" @click="showExpireAlert = false">
           确定
         </button>
@@ -47,19 +47,28 @@
       
       <!-- 中间VS区域及匹配时间 -->
       <VSCard 
+        :battle-type="battleType"
         :is-matching="isMatching"
         :match-time="formattedMatchTime"
         :found-players="foundPlayers"
+
       />
       
       <!-- 右侧玩家区域 -->
       <PlayerCard 
+        v-if="checkBattleType()"
         :player="rightPlayer" 
         :is-hovered="isRightHovered" 
         :is-matching="isMatching"
         :box-style="playerBoxStyle"
         @mouse-enter="handleRightEnter"
         @mouse-leave="handleRightLeave"
+
+      />
+      <ReceiveInvite  v-else
+        :is-loading="isMatching"
+        @invite-friend="handleInviteFriend"
+        @join-room="handleJoinRoom"
       />
     </div>
     
@@ -86,6 +95,9 @@ import PlayerCard from './PlayerCard.vue';
 import VSCard from './VSCard.vue';
 import BottomControls from './BottomControls.vue';
 import RoomNumberModal from './RoomNumberModal.vue';
+import ReceiveInvite from './ReceiveInvite.vue';
+import { CanceledError } from 'axios';
+import { FastForwardFilled } from '@vicons/antd';
 
 // 接收外部传入的对战类型
 const props = defineProps({
@@ -116,11 +128,22 @@ const isFadingOut = ref(false);
 // 房间号弹窗相关变量
 const showRoomModal = ref(false);
 const roomNumber = ref('');
-const roomCountdownSeconds = ref(180); // 倒计时时间
+const roomCountdownSeconds = ref(180); // 倒计时时间，修改为3分钟
 let roomCountdownTimer = null;
+const inRoom = ref(false); // 新增：标记是否在房间内
 
-// 新增：过期提示弹窗控制
+// 新增：过期提示弹窗内容控制
 const showExpireAlert = ref(false);
+const cancelExpire = ref(false)
+const autoAlertTitle = ref('已取消邀请')
+const autoAlertMessage = ref('该房间已销毁，请重新创建房间');
+const alertTitle = ref('房间已过期');
+const alertMessage = ref('抱歉，房间已超过有效期，请重新创建房间');
+const alertIcon = ref('⏰');
+
+const checkBattleType = () => {
+  return props.battleType === "天人之战";
+}
 
 // 格式化房间倒计时
 const formattedRoomCountdown = computed(() => {
@@ -231,6 +254,14 @@ const handleBackToMenu = () => {
   console.log('返回菜单按钮被点击');
 };
 
+// 显示提示弹窗
+const showAlert = (title, message, icon = '⏰') => {
+  alertTitle.value = title;
+  alertMessage.value = message;
+  alertIcon.value = icon;
+  showExpireAlert.value = true;
+};
+
 // 开始匹配事件
 const handleMatchOrCancel = async () => {
   if (isMatching.value) { 
@@ -239,7 +270,7 @@ const handleMatchOrCancel = async () => {
       stopRoomCountdown();
       showRoomModal.value = false;
     }
-    return
+    return;
   }
   
   foundPlayers.value = 1;
@@ -258,28 +289,31 @@ const handleMatchOrCancel = async () => {
         startRoomCountdown();
       } else {
         console.log("发送好友邀请失败：", resp.message);
+        showAlert('邀请失败', resp.message || '无法发送好友邀请，请稍后再试');
         // 失败时重置状态
         isMatching.value = false;
       }
     } else {
-      // 天人对战的API
+      // 天人之战的API
       const resp = await api.match();
       if (resp.code === 0) {
         console.log("发送匹配请求成功！");
 
         // 启动匹配计时器
-          matchTimeSeconds.value = 0;
-          matchTimer = setInterval(() => {
+        matchTimeSeconds.value = 0;
+        matchTimer = setInterval(() => {
           matchTimeSeconds.value++;
         }, 1000);
       } else {
         console.log("发送匹配请求失败：", resp.message);
+        showAlert('匹配失败', resp.message || '无法发送匹配请求，请稍后再试');
         // 失败时重置状态
         isMatching.value = false;
       }
     }
   } catch (error) {
     console.error("请求后端数据失败：", error);
+    showAlert('网络错误', '与服务器连接失败，请检查网络');
     // 异常时重置状态
     isMatching.value = false;
   }
@@ -288,7 +322,8 @@ const handleMatchOrCancel = async () => {
 // 房间倒计时控制
 const startRoomCountdown = () => {
   // 重置倒计时
-  roomCountdownSeconds.value = 180;
+  cancelExpire.value = false
+  roomCountdownSeconds.value = 180; // 3分钟
   
   // 清除可能存在的旧计时器
   if (roomCountdownTimer) {
@@ -316,22 +351,30 @@ const stopRoomCountdown = () => {
 
 // 房间过期处理
 const handleRoomExpired = async () => {
+  // 避免重复调用
+  if (!roomNumber.value || roomCountdownSeconds.value <= 0) return;
+  
   stopRoomCountdown();
   showRoomModal.value = false;
   isMatching.value = false;
+  inRoom.value = false;
   
-  // 通知后端房间已过期
   try {
     const resp = await api.expireRoom(roomNumber.value)
     console.log("expire Room: ", resp)
     if (resp.code === 0) {
       console.log('通知房间过期成功');
-      // 显示自定义过期提示
-      showExpireAlert.value = true;
+      if (cancelExpire.value) {
+        cancelExpire.value = false
+        showAlert(autoAlertTitle.value, autoAlertMessage.value);
+      } else {
+        showAlert('房间已过期', '抱歉，房间已超过有效期，请重新创建房间');
+      }
+      
     }
   } catch (err) {
     console.error('通知房间过期失败:', err);
-    showExpireAlert.value = true;
+    showAlert('房间已过期', '抱歉，房间已超过有效期，请重新创建房间');
   }
 };
 
@@ -344,39 +387,25 @@ const handleRoomModalClose = () => {
 // 复制房间号
 const copyRoomNumber = () => {
   navigator.clipboard.writeText(roomNumber.value).then(() => {
-    // 可以在这里添加复制成功的提示
-    showExpireAlert.value = true;
-    // 临时修改提示内容为复制成功
-    const tempTitle = document.querySelector('.alert-title');
-    const tempMessage = document.querySelector('.alert-message');
-    if (tempTitle && tempMessage) {
-      tempTitle.textContent = '复制成功';
-      tempMessage.textContent = '房间号已成功复制到剪贴板';
-      document.querySelector('.alert-icon').textContent = '✓';
-      
-      // 3秒后关闭
-      setTimeout(() => {
-        showExpireAlert.value = false;
-      }, 1500);
-    }
+    // 显示复制成功的提示
+    showAlert('复制成功', '房间号已成功复制到剪贴板', '✓');
+    // 3秒后关闭
   }).catch(err => {
     console.error('无法复制文本: ', err);
     // 显示复制失败提示
-    showExpireAlert.value = true;
-    const tempTitle = document.querySelector('.alert-title');
-    const tempMessage = document.querySelector('.alert-message');
-    if (tempTitle && tempMessage) {
-      tempTitle.textContent = '复制失败';
-      tempMessage.textContent = '请手动复制房间号';
-      document.querySelector('.alert-icon').textContent = '⚠️';
-    }
+    showAlert('复制失败', '请手动复制房间号', '⚠️');
   });
 };
 
-// 取消邀请处理
+// 取消邀请处理 - 修复核心：只调用一次过期处理并确保计时器已停止
 const handleCancelInvitation = () => {
   showRoomModal.value = false;
-  handleMatchOrCancel(); // 调用取消匹配的逻辑
+  cancelExpire.value = true
+  // 先强制停止所有计时器，避免残留回调
+  stopRoomCountdown();
+  stopMatchProcess();
+  // 只调用一次房间过期处理
+  handleRoomExpired();
 };
 
 // 停止匹配流程（清除计时器）
@@ -424,6 +453,53 @@ const handleRightEnter = () => {
 const handleRightLeave = () => {
   isRightHovered.value = false;
   console.log('右侧玩家区域悬停离开');
+};
+
+// 邀请好友（创建房间）
+const handleInviteFriend = async () => {
+  if (isMatching.value) return;
+  
+  try {
+    isMatching.value = true;
+    const resp = await api.inviteFriend();
+    if (resp.code === 0) {
+      console.log("创建邀请成功！");
+      roomNumber.value = resp.data.room_id;
+      showRoomModal.value = true;
+      startRoomCountdown();
+      inRoom.value = true;
+    } else {
+      showAlert('创建失败', resp.message || '无法创建邀请，请稍后再试', '⚠️');
+      isMatching.value = false;
+    }
+  } catch (error) {
+    console.error("创建邀请失败：", error);
+    showAlert('创建失败', '网络错误，无法创建邀请', '⚠️');
+    isMatching.value = false;
+  }
+};
+
+// 加入房间
+const handleJoinRoom = async (roomId) => {
+  if (isMatching.value || !roomId) return;
+  console.log("roomId: ", roomId)
+  try {
+    isMatching.value = true;
+    const resp = await api.joinRoom(roomId);
+    if (resp.code === 0) {
+      console.log("加入房间成功！");
+      roomNumber.value = roomId;
+      startRoomCountdown();
+      inRoom.value = true;
+    } else {
+      showAlert('加入失败', resp.message || '房间不存在或已过期', '⚠️');
+      isMatching.value = false;
+    }
+  } catch (error) {
+    console.error("加入房间失败：", error);
+    showAlert('加入失败', '网络错误，无法加入房间', '⚠️');
+    isMatching.value = false;
+  }
 };
 
 // 计算玩家框尺寸（自适应中间区域大小）
@@ -598,4 +674,3 @@ onMounted(() => {
   }
 }
 </style>
-    

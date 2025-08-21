@@ -1,8 +1,9 @@
 <template>
   <div class="bottom-area">
     <button 
+      v-if="battleType === '天人之战'"
       class="action-btn" 
-      :class="isMatching ? 'matching-btn cancel-match-btn' : (battleType === '天人对战' ? 'friend-btn' : 'match-btn')" 
+      :class="isMatching ? 'matching-btn cancel-match-btn' : (battleType === '天人之战' ? 'friend-btn' : 'match-btn')" 
       @click="$emit('match-or-cancel')"
     >
       <i :class="isMatching ? 'icon-loading' : (battleType === '好友对战' ? 'icon-friend' : 'icon-game')"></i>

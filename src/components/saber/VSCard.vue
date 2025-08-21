@@ -1,35 +1,41 @@
 <template>
   <div class="vs-wrapper">
-    <div class="match-status-bar" v-if="isMatching">
-      <div class="status-content">
-        <div class="status-row">
-          <div class="loader-small">
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
+    <!-- 天人之战时显示VS内容 -->
+    <template v-if="battleType === '天人之战'">
+      <div class="match-status-bar" v-if="isMatching">
+        <div class="status-content">
+          <div class="status-row">
+            <div class="loader-small">
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+              <div class="loader-dot"></div>
+            </div>
+            <span class="status-text">匹配中</span>
           </div>
-          <span class="status-text">匹配中</span>
-        </div>
 
-        <div class="status-row">
-          <div class="match-time-display">
-            <span class="time-value">{{ matchTime }}</span>
+          <div class="status-row">
+            <div class="match-time-display">
+              <span class="time-value">{{ matchTime }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="status-row">
-          <div class="players-count">
-            <span class="players-label">已找到:</span>
-            <span class="players-value">{{ foundPlayers }}/2</span>
+          <div class="status-row">
+            <div class="players-count">
+              <span class="players-label">已找到:</span>
+              <span class="players-value">{{ foundPlayers }}/2</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="vs-container">
-      <div class="vs-background"></div>
-      <div class="vs-text">VS</div>
-    </div>
+      
+      <div class="vs-container">
+        <div class="vs-background"></div>
+        <div class="vs-text">VS</div>
+      </div>
+    </template>
+    <template v-else>
+    </template>
+
   </div>
 </template>
 
@@ -46,8 +52,13 @@ const props = defineProps({
   foundPlayers: {
     type: Number,
     default: 0
+  },
+  battleType: {  // 新增：接收对战类型参数
+    type: String,
+    required: true
   }
 });
+
 </script>
 
 <style scoped>
@@ -227,6 +238,15 @@ const props = defineProps({
   50% { transform: translateY(-5px); }
 }
 
+/* 空白占位框（与VS容器大小一致） */
+.empty-placeholder {
+  /* 保持与VS组件完全相同的尺寸和间距 */
+  width: 80px;
+  height: 80px;
+  margin-top: 28px; /* 匹配match-status-bar的高度，确保整体占位大小一致 */
+  background-color: transparent; /* 透明背景 */
+}
+
 /* 响应式适配 */
 @media (max-width: 768px) {
   .match-status-bar {
@@ -241,10 +261,14 @@ const props = defineProps({
   .players-label {
     font-size: 10px;
   }
+
+  .empty-placeholder {
+    margin-top: 24px;
+  }
 }
 
 @media (max-width: 576px) {
-  .vs-container {
+  .vs-container, .empty-placeholder {
     width: 60px;
     height: 60px;
   }
@@ -252,5 +276,10 @@ const props = defineProps({
   .vs-text {
     font-size: 22px;
   }
+
+  .empty-placeholder {
+    margin-top: 20px;
+  }
 }
 </style>
+    
