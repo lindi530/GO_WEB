@@ -105,9 +105,13 @@ async function handleSelectUser(id) {
   if (user) user.hasUnread = false
 
   if (!messageMap.value[id]) {
-    const res = await api.getMessageByTargetId(id)
-    if (res.code === 0) {
-      messageMap.value[id] = res.data
+    try { 
+      const res = await api.getMessageByTargetId(id)
+      if (res.code === 0) {
+        messageMap.value[id] = res.data
+      }
+    } catch { 
+      console.error('发送请求失败:', error);
     }
   }
 }

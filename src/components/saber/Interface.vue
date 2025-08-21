@@ -110,7 +110,7 @@ import BattleBg from '@/assets/1.png';
 import menuBg from '@/assets/background.jpg'; 
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import Menu from './menu.vue';
-import Battle from './battle.vue'
+import Battle from './BattleMatch.vue'
 import BattleGame from './BattleGame.vue';
 
 // 接收显示状态props

@@ -6,6 +6,30 @@
       :is-fading-out="isFadingOut"
     />
     
+    <!-- 房间号弹窗 -->
+    <RoomNumberModal
+      :show="showRoomModal"
+      :room-number="roomNumber"
+      :formatted-countdown="formattedRoomCountdown"
+      :countdown-progress="roomCountdownProgress"
+      @close="handleRoomModalClose"
+      @copy-room-number="copyRoomNumber"
+      @cancel-invitation="handleCancelInvitation"
+    />
+    
+    <!-- 自定义过期提示弹窗 -->
+    <div class="expire-alert" v-if="showExpireAlert">
+      <div class="alert-backdrop" @click="showExpireAlert = false"></div>
+      <div class="alert-content">
+        <div class="alert-icon">⏰</div>
+        <h3 class="alert-title">房间已过期</h3>
+        <p class="alert-message">抱歉，房间已超过有效期，请重新创建房间</p>
+        <button class="alert-btn" @click="showExpireAlert = false">
+          确定
+        </button>
+      </div>
+    </div>
+    
     <!-- 顶部标题区域 -->
     <TopBar :battle-type="battleType" />
     
@@ -61,6 +85,7 @@ import TopBar from './TopBar.vue';
 import PlayerCard from './PlayerCard.vue';
 import VSCard from './VSCard.vue';
 import BottomControls from './BottomControls.vue';
+import RoomNumberModal from './RoomNumberModal.vue';
 
 // 接收外部传入的对战类型
 const props = defineProps({
@@ -68,6 +93,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  postId: {
+    type: [String, Number],
+    required: true
+  }
 });
 
 // 定义对外暴露的事件
@@ -83,6 +112,27 @@ let playerFoundTimer = null;
 // 匹配成功特效相关变量
 const showMatchSuccess = ref(false);
 const isFadingOut = ref(false);
+
+// 房间号弹窗相关变量
+const showRoomModal = ref(false);
+const roomNumber = ref('');
+const roomCountdownSeconds = ref(180); // 倒计时时间
+let roomCountdownTimer = null;
+
+// 新增：过期提示弹窗控制
+const showExpireAlert = ref(false);
+
+// 格式化房间倒计时
+const formattedRoomCountdown = computed(() => {
+  const minutes = Math.floor(roomCountdownSeconds.value / 60);
+  const seconds = roomCountdownSeconds.value % 60;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+});
+
+// 房间倒计时进度
+const roomCountdownProgress = computed(() => {
+  return (roomCountdownSeconds.value / 180) * 100;
+});
 
 
 const store = useStore();
@@ -128,6 +178,9 @@ const unregister = registerMatchCallback((msg) => {
 })
 
 const handleMatchSuccess = (msg) => {
+  // 停止房间倒计时
+  stopRoomCountdown();
+  
   rightPlayer.value.avatar = msg.opponent.avatar
   rightPlayer.value.name = msg.opponent.user_name
   rightPlayer.value.level = msg.opponent.level
@@ -173,35 +226,157 @@ const formattedMatchTime = computed(() => {
 // 返回菜单事件
 const handleBackToMenu = () => {
   stopMatchProcess();
+  stopRoomCountdown();
   emit('back-to-menu');
   console.log('返回菜单按钮被点击');
 };
 
 // 开始匹配事件
-const handleMatchOrCancel = async() => {
+const handleMatchOrCancel = async () => {
   if (isMatching.value) { 
     stopMatchProcess();
-    console.log('取消匹配');
+    if (props.battleType === '好友对战') {
+      stopRoomCountdown();
+      showRoomModal.value = false;
+    }
     return
   }
   
-  isMatching.value = true;
-  matchTimeSeconds.value = 0;
   foundPlayers.value = 1;
-  
-  // 启动匹配计时器
-  matchTimer = setInterval(() => {
-    matchTimeSeconds.value++;
-  }, 1000);
+  isMatching.value = true;
 
-  let resp = await api.match()
-  if (resp.code === 0) { 
-    console.log("发送匹配请求成功！")
-  } else {
-    console.log("发送匹配请求失败：", resp.message)
+  try {
+    // 根据对战类型调用不同的API
+    if (props.battleType === '好友对战') {
+      // 邀请好友的API
+      const resp = await api.inviteFriend();
+      if (resp.code === 0) {
+        // 保存房间号并显示弹窗
+        roomNumber.value = resp.data.room_id;
+        showRoomModal.value = true;
+        // 启动房间倒计时
+        startRoomCountdown();
+      } else {
+        console.log("发送好友邀请失败：", resp.message);
+        // 失败时重置状态
+        isMatching.value = false;
+      }
+    } else {
+      // 天人对战的API
+      const resp = await api.match();
+      if (resp.code === 0) {
+        console.log("发送匹配请求成功！");
+
+        // 启动匹配计时器
+          matchTimeSeconds.value = 0;
+          matchTimer = setInterval(() => {
+          matchTimeSeconds.value++;
+        }, 1000);
+      } else {
+        console.log("发送匹配请求失败：", resp.message);
+        // 失败时重置状态
+        isMatching.value = false;
+      }
+    }
+  } catch (error) {
+    console.error("请求后端数据失败：", error);
+    // 异常时重置状态
+    isMatching.value = false;
+  }
+};
+
+// 房间倒计时控制
+const startRoomCountdown = () => {
+  // 重置倒计时
+  roomCountdownSeconds.value = 180;
+  
+  // 清除可能存在的旧计时器
+  if (roomCountdownTimer) {
+    clearInterval(roomCountdownTimer);
   }
   
-  console.log('开始匹配');
+  // 启动新计时器
+  roomCountdownTimer = setInterval(() => {
+    roomCountdownSeconds.value--;
+    
+    // 倒计时结束
+    if (roomCountdownSeconds.value <= 0) {
+      handleRoomExpired();
+    }
+  }, 1000);
+};
+
+// 停止房间倒计时
+const stopRoomCountdown = () => {
+  if (roomCountdownTimer) {
+    clearInterval(roomCountdownTimer);
+    roomCountdownTimer = null;
+  }
+};
+
+// 房间过期处理
+const handleRoomExpired = async () => {
+  stopRoomCountdown();
+  showRoomModal.value = false;
+  isMatching.value = false;
+  
+  // 通知后端房间已过期
+  try {
+    const resp = await api.expireRoom(roomNumber.value)
+    console.log("expire Room: ", resp)
+    if (resp.code === 0) {
+      console.log('通知房间过期成功');
+      // 显示自定义过期提示
+      showExpireAlert.value = true;
+    }
+  } catch (err) {
+    console.error('通知房间过期失败:', err);
+    showExpireAlert.value = true;
+  }
+};
+
+// 房间弹窗关闭处理
+const handleRoomModalClose = () => {
+  showRoomModal.value = false;
+  // 不停止倒计时，因为用户可能只是暂时关闭窗口
+};
+
+// 复制房间号
+const copyRoomNumber = () => {
+  navigator.clipboard.writeText(roomNumber.value).then(() => {
+    // 可以在这里添加复制成功的提示
+    showExpireAlert.value = true;
+    // 临时修改提示内容为复制成功
+    const tempTitle = document.querySelector('.alert-title');
+    const tempMessage = document.querySelector('.alert-message');
+    if (tempTitle && tempMessage) {
+      tempTitle.textContent = '复制成功';
+      tempMessage.textContent = '房间号已成功复制到剪贴板';
+      document.querySelector('.alert-icon').textContent = '✓';
+      
+      // 3秒后关闭
+      setTimeout(() => {
+        showExpireAlert.value = false;
+      }, 1500);
+    }
+  }).catch(err => {
+    console.error('无法复制文本: ', err);
+    // 显示复制失败提示
+    showExpireAlert.value = true;
+    const tempTitle = document.querySelector('.alert-title');
+    const tempMessage = document.querySelector('.alert-message');
+    if (tempTitle && tempMessage) {
+      tempTitle.textContent = '复制失败';
+      tempMessage.textContent = '请手动复制房间号';
+      document.querySelector('.alert-icon').textContent = '⚠️';
+    }
+  });
+};
+
+// 取消邀请处理
+const handleCancelInvitation = () => {
+  showRoomModal.value = false;
+  handleMatchOrCancel(); // 调用取消匹配的逻辑
 };
 
 // 停止匹配流程（清除计时器）
@@ -292,6 +467,7 @@ onMounted(() => {
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
     stopMatchProcess(); // 确保计时器被清除
+    stopRoomCountdown(); // 确保房间倒计时被清除
     unregister(); // 取消WebSocket回调注册
   });
   
@@ -326,4 +502,100 @@ onMounted(() => {
   position: relative;
   z-index: 1;
 }
+
+/* 房间过期提示样式 */
+.expire-alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100; /* 确保在其他弹窗上方 */
+  pointer-events: none;
+}
+
+.alert-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.alert-content {
+  position: relative;
+  width: 90%;
+  max-width: 350px;
+  background-color: #1e293b;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(58, 134, 255, 0.3);
+  animation: popIn 0.3s ease-out;
+  pointer-events: auto;
+}
+
+.alert-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #fde68a;
+}
+
+.alert-title {
+  margin: 0 0 12px 0;
+  color: #e0e7ff;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.alert-message {
+  margin: 0 0 24px 0;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alert-btn {
+  background-color: rgba(58, 134, 255, 0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.alert-btn:hover {
+  background-color: rgba(37, 99, 235, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(58, 134, 255, 0.3);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 </style>
+    

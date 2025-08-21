@@ -106,5 +106,12 @@ export default {
   saberSubmit(data) {
     return request.post(`saber/submit`, data)
   },
+  inviteFriend() {
+    return request.post(`saber/invite`)
+  },
+  expireRoom(roomID) {
+    return request.post(`saber/rooms/expire/${roomID}`)
+  }
+  
   // 这里按需继续扩展接口
 };
