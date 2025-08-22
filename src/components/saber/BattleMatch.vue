@@ -112,7 +112,7 @@ const props = defineProps({
 });
 
 // 定义对外暴露的事件
-const emit = defineEmits(['back-to-menu', 'update_match_success', 'to-battle-game']);
+const emit = defineEmits(['back-to-menu', 'update_match_success', 'to-battle-game', 'set-room-id']);
 
 // 匹配状态管理
 const isMatching = ref(false);
@@ -197,6 +197,7 @@ const { registerMatchCallback } = useWebSocketContext()
 
 
 const unregister = registerMatchCallback((msg) => {
+  console.log("匹配成功")
   handleMatchSuccess(msg)
 })
 
@@ -215,7 +216,7 @@ const stopAll = () => {
 }
 
 const handleMatchSuccess = (msg) => {
- 
+  emit('set-room-id', roomNumber.value)
   stopAll()
   
   rightPlayer.value.avatar = msg.opponent.avatar
@@ -470,6 +471,7 @@ const handleInviteFriend = async () => {
     if (resp.code === 0) {
       console.log("创建邀请成功！");
       roomNumber.value = resp.data.room_id;
+      emit('set-room-id', roomNumber.value)
       showRoomModal.value = true;
       startRoomCountdown();
       inRoom.value = true;
@@ -494,6 +496,7 @@ const handleJoinRoom = async (roomId) => {
     if (resp.code === 0) {
       console.log("加入房间成功！");
       roomNumber.value = roomId;
+      emit('set-room-id', roomId)
       startRoomCountdown();
       inRoom.value = true;
     } else {

@@ -82,6 +82,7 @@
                 :battle-type="currentBattleType"
                 :base-scale="scaleRatio"
                 :battle-state="battleState"
+                @set-room-id="handleSetRoomId"
                 @back-to-menu="handleBackToMenu"
                 @to-battle-game="handleToBattleGame"
                 @update-match-success="updateMatchSuccess"
@@ -91,6 +92,7 @@
                 v-if="currentView === 'match_success'"
                 :room-id="roomId"
                 :problem-id="problemId"
+               
                 @back-to-menu="handleBackToMenu"
               />
             </div>
@@ -256,6 +258,11 @@ const handleFriendBattle = () => {
   bgImage.value = menuBg;
   nextTick(updateHeaderHeight); // 视图切换后重新计算高度
 };
+
+const handleSetRoomId = (val) => { 
+  console.log("set RoomID", val)
+  roomId.value = val
+}
 
 // 计算弹窗尺寸
 const calculateSizes = () => {

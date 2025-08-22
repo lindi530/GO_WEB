@@ -70,6 +70,7 @@ const win = ref(null)
 const unregister = registersaberResultCallback((msg) => { 
   overMessage.value = msg.content
   gameOver.value = true
+
   win.value = msg.win
   console.log("registersaberResultCallback: ", msg)
 })

@@ -65,6 +65,8 @@ const props = defineProps({
   roomId: String,
 })
 
+console.log("codeEditor roomId:", props.problemId, "  ", props.roomId );
+
 const langOptions = [
   { label: 'C++', value: 'cpp' },
   { label: 'Python3', value: 'python' },
@@ -169,15 +171,20 @@ async function submitCode() {
   handleActiveStatus("")
 
   try {
+    console.log("props.roomId: ", props.roomId)
     if (typeof props.roomId !== 'undefined') {
-      console.log("props.roomId: ", props.roomId)
+      console.log("props.roomId")
+      const payload = {
+          room_id: props.roomId,
+          language: internalLang.value,
+          code: internalCode.value,
+      }
+      console.log("payload: ", payload)
       const resp = await api.saberSubmit(
-        {
-          "room_id": props.roomId,
-          "language": internalLang.value,
-          "code": internalCode.value,
-        })
+        payload
+       )
     } else {
+      console.log("2")
       const resp = await api.submitCode(
       props.problemId,
       {
