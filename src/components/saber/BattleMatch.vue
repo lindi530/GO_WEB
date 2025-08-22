@@ -66,6 +66,7 @@
 
       />
       <ReceiveInvite  v-else
+        :problem-id="problemId"
         :is-loading="isMatching"
         @invite-friend="handleInviteFriend"
         @join-room="handleJoinRoom"
@@ -291,22 +292,7 @@ const handleMatchOrCancel = async () => {
 
   try {
     // 根据对战类型调用不同的API
-    if (props.battleType === '好友对战') {
-      // 邀请好友的API
-      const resp = await api.inviteFriend();
-      if (resp.code === 0) {
-        // 保存房间号并显示弹窗
-        roomNumber.value = resp.data.room_id;
-        showRoomModal.value = true;
-        // 启动房间倒计时
-        startRoomCountdown();
-      } else {
-        console.log("发送好友邀请失败：", resp.message);
-        showAlert('邀请失败', resp.message || '无法发送好友邀请，请稍后再试');
-        // 失败时重置状态
-        isMatching.value = false;
-      }
-    } else {
+    
       // 天人之战的API
       const resp = await api.match();
       if (resp.code === 0) {
@@ -323,7 +309,7 @@ const handleMatchOrCancel = async () => {
         // 失败时重置状态
         isMatching.value = false;
       }
-    }
+    
   } catch (error) {
     console.error("请求后端数据失败：", error);
     showAlert('网络错误', '与服务器连接失败，请检查网络');

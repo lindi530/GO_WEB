@@ -79,7 +79,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   position: relative; /* 确保在父级堆叠上下文中 */
-  z-index: 1; /* 提升自身层级 */
 }
 
 /* 确保内容区域不被裁剪 */

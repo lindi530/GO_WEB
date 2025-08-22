@@ -2,6 +2,10 @@
   <div v-if="showDialog" class="saber-app-root">
     <!-- 将teleport内部的元素包裹在一个容器中，统一管理堆叠上下文 -->
     <teleport to="body">
+      <div 
+          :class="['modal-backdrop fade', showDialog ? 'show' : '']"
+          :style="{ zIndex: 0 }" 
+        ></div>
       <div class="modal-container">
         <!-- 弹窗内容 - 层级高于遮罩 -->
         <div class="modal-content-wrapper">
@@ -12,7 +16,8 @@
               height: dialogSize.height + 'px',
               left: dialogLeft + 'px',
               top: dialogTop + 'px',
-              transform: 'none !important'
+              transform: 'none !important',
+              overflow: 'visible'
             }"
             class="modal-dialog position-absolute bg-white rounded shadow-lg"
           >
@@ -98,10 +103,7 @@
           </div>
         </div>
       </div>
-       <div 
-          :class="['modal-backdrop fade', showDialog ? 'show' : '']"
-          :style="{ zIndex: 1 }" 
-        ></div>
+       
     </teleport>
   </div>
 </template>
@@ -441,7 +443,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  /* z-index: 9999; */
 }
 
 /* 保持原有遮罩样式不变 */
@@ -455,7 +457,7 @@ onUnmounted(() => {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s linear;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 .modal-backdrop.show {
@@ -469,7 +471,7 @@ onUnmounted(() => {
   width: 0;
   height: 0;
   overflow: hidden;
-  z-index: -1;
+  /* z-index: -1; */
 }
 
 * {
@@ -482,7 +484,7 @@ onUnmounted(() => {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10;
+  /* z-index: 10; */
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
@@ -493,7 +495,7 @@ onUnmounted(() => {
 
 .modal-content-wrapper {
   position: relative;
-  z-index: 2; /* 高于遮罩层 */
+  /* z-index: 2; 高于遮罩层 */
   width: 100%;
   height: 100%;
   pointer-events: none; /* 允许点击穿透到遮罩 */
@@ -511,7 +513,7 @@ onUnmounted(() => {
   transform: none !important;
 
   pointer-events: auto;
-  z-index: 3; /* 确保在内容包装器内层级最高 */
+  /* z-index: 3;  确保在内容包装器内层级最高 */
 }
 
 .modal-header {
@@ -530,18 +532,18 @@ onUnmounted(() => {
   margin: 0 !important;
   padding: 0 !important;
   position: relative;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 .modal-body {
   position: relative;
-  z-index: 1; /* 弹窗内部内容层级 */
+  /* z-index: 1; 弹窗内部内容层级 */
 }
 
 /* 修复Edit组件可能的层级问题 */
 .page-container {
   position: relative;
-  z-index: 1; /* 确保在弹窗内容范围内 */
+  /* z-index: 1; 确保在弹窗内容范围内 */
 }
 
 .button-container {

@@ -1,5 +1,5 @@
 <template>
-  <UserChat/> 
+    <UserChat/> 
 </template>
 
 <script>
@@ -11,3 +11,7 @@ export default {
 
 }
 </script>
+
+<style scoped>
+
+</style>
