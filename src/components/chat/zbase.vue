@@ -1,15 +1,16 @@
 <template>
-    <UserChat/> 
+  <UserChat 
+    v-model:visible="visible"
+  />
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import UserChat from './UserChat.vue';
 
-export default {
-  components: { UserChat },
-  name: "Test",
 
-}
+const visible = ref(true)
+
 </script>
 
 <style scoped>

@@ -12,6 +12,7 @@
     
     <TestCasesUpload 
       v-model="problemData.testCases" 
+      ref="testCasesRef"
     />
     
     <ProblemConstraints 
@@ -33,6 +34,7 @@ import TestCasesUpload from '@/components/ProblemUpload/TestCasesUpload.vue';
 import ProblemConstraints from '@/components/ProblemUpload/ProblemConstraints.vue';
 import SubmitActions from '@/components/ProblemUpload/SubmitActions.vue';
 import { onMounted } from 'vue'
+import api from '@/api'
 
 // 主数据存储
 const problemData = ref({
@@ -49,11 +51,13 @@ const problemData = ref({
   },
   testCases: [],
   constraints: {
-    timeLimit: 1000,
-    memoryLimit: 256,
-    maxSubmissions: 10
+    cpp: { timeLimit: 1000, memoryLimit: 256, maxSubmissions: 10 },
+    python: { timeLimit: 1000, memoryLimit: 256, maxSubmissions: 10 },
+    go: { timeLimit: 1000, memoryLimit: 256, maxSubmissions: 10 }
   }
 });
+
+const testCasesRef = ref(null); 
 
 // 移除可能导致递归的深层watch，只在需要时手动处理
 
@@ -81,9 +85,22 @@ onMounted(() => {
   console.log("problemData", problemData.value)
 })
 
-const handleSubmitForReview = () => {
+
+const handleSubmitForReview = async () => {
+
+  await testCasesRef.value?.matchTestCases(); 
+
+  let msg = "已提交审核"
+  try {
+    const resp = await api.uploadProblem(problemData.value)
+    if (resp.code == 0) {
+      msg = resp.message
+    }
+  } catch { }
+
+
   console.log('提交审核:', problemData.value);
   localStorage.removeItem('problem-draft')
-  alert('已提交审核');
+  alert(msg);
 };
 </script>

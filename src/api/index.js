@@ -104,16 +104,19 @@ export default {
     return request.get(`/saber/info`)
   },
   saberSubmit(data) {
-    return request.post(`saber/submit`, data)
+    return request.post(`/saber/submit`, data)
   },
   inviteFriend() {
-    return request.post(`saber/invite`)
+    return request.post(`/saber/invite`)
   },
   expireRoom(roomID) {
-    return request.post(`saber/rooms/expire/${roomID}`)
+    return request.post(`/saber/rooms/expire/${roomID}`)
   },
   joinRoom(roomID) {
-    return request.post(`saber/rooms/join/${roomID}`)
+    return request.post(`/saber/rooms/join/${roomID}`)
+  },
+  uploadProblem(data) {
+    return request.post(`/upload/problem`, data)
   }
   // 这里按需继续扩展接口
 };

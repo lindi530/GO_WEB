@@ -76,14 +76,14 @@
     
     <div class="mt-3 flex items-center flex-wrap gap-2">
       <div style="display: flex; align-items: center;">
-        <n-button 
+        <!-- <n-button 
             type="info" 
             @click="matchTestCases"
             :disabled="inputFiles.length === 0 || outputFiles.length === 0"
             class="mr-3"
         >
             匹配并添加测试用例
-        </n-button>
+        </n-button> -->
         
         <!-- 匹配结果提示信息 -->
         <div v-if="matchResult.message" 
@@ -387,4 +387,8 @@ watch(
     },
     { deep: true } // 如果是对象或数组，使用 deep
 )
+
+defineExpose({
+  matchTestCases
+});
 </script>

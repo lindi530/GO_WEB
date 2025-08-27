@@ -84,9 +84,9 @@ const tagSuggestions = [
 
 // 难度选项
 const difficultyOptions = [
-  { label: '简单', value: 'easy' },
-  { label: '中等', value: 'medium' },
-  { label: '困难', value: 'hard' }
+  { label: '简单', value: '简单' },
+  { label: '中等', value: '中等' },
+  { label: '困难', value: '困难' }
 ];
 
 // 通用字段变更处理

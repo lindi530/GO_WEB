@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+
+
 import HomeView from '../views/HomeView.vue'
 import PostsView from '../views/PostsView.vue'
 import UsersView from '../views/UsersProfileView.vue'
@@ -31,6 +33,7 @@ const routes = [
     path: '/users/chat',
     name: 'Chat',
     component: Chat,
+    meta: { requiresAuth: true }   // 需要登录
   },
   {
     path: '/users/:userId',
@@ -60,7 +63,8 @@ const routes = [
   {
     path: '/test',
     name: 'test',
-    component: Test
+    component: Test,
+    meta: { requiresAuth: true }   // 需要登录
   },
   {
     path: '/404',
@@ -75,5 +79,17 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes
 })
+
+// 全局前置守卫
+// router.beforeEach((to, from, next) => {
+//   const auth = useAuthStore()
+
+//   if (to.meta.requiresAuth && !auth.token) {
+//     auth.showLoginDialog()   // 打开弹窗
+//     next(false)              // 阻止跳转
+//   } else {
+//     next()
+//   }
+// })
 
 export default router
