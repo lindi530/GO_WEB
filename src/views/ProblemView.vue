@@ -8,7 +8,20 @@
         <div class="d-flex" style="gap: 24px;">
           <!-- 左侧题目区域 -->
           <div class="flex-fill" style="max-width: 50%;">
-            <ProblemDetail v-if="problem" :problem="problem" />
+            <ProblemDetail 
+              v-if="activeTab === 'problem' && problem" 
+              :problem="problem" 
+              :room-id="roomId"
+              v-model:tab="activeTab"
+              class="p-4"
+            />
+            <SubmissionList 
+              v-if="activeTab === 'submissions'" 
+              :problem-id="problemID"
+              :room-id="roomId"
+              v-model:tab="activeTab"
+              class="p-4"
+            />
           </div>
 
           <!-- 右侧编辑器+测试 -->
@@ -29,6 +42,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import ProblemDetail from '@/components/coding/ProblemDetail.vue'
 import CodeEditor from '@/components/coding/CodeEditor.vue'
+import SubmissionList from '@/components/coding/SubmissionList.vue'
 import api from '@/api'
 
 console.log("problem View")
@@ -36,6 +50,7 @@ console.log("problem View")
 const problem = ref(null)
 const loading = ref(true)
 const route = useRoute()
+const activeTab = ref('problem')
 
 const props = defineProps({
   problemId: {

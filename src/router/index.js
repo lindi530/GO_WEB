@@ -12,6 +12,7 @@ import UserProfile from '@/components/setting/UserProfile.vue'
 import PostDetail from '@/components/post/PostDetail.vue'
 import Problem from '@/views/ProblemListView.vue'
 import ProblemDetail from '@/views/ProblemView.vue'
+import ProblemUpload from '@/views/ProblemUpload.vue'
 
 const routes = [
   {
@@ -59,6 +60,11 @@ const routes = [
     path: '/problems/:problem_id',
     name: 'ProblemDetail',
     component: ProblemDetail,
+  },
+  {
+    path: '/upload/problem',
+    name: 'ProblemUpload',
+    component: ProblemUpload,
   },
   {
     path: '/test',

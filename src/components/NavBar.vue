@@ -106,6 +106,7 @@ const leftLinks = computed(() => [
   { label: '聊天', to: '/users/chat' },
   { label: '题库', to: '/problems' },
   { label: '对战', to: '/' },
+  { label: '题目上传', to: '/upload/problem'},
   { label: '测试', to: '/test'}
 ]);
 

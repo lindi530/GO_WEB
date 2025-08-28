@@ -174,7 +174,8 @@ const normalizeFileList = (fileList) => {
 };
 
 // 匹配测试用例
-const matchTestCases = () => {
+const matchTestCases = async () => {
+  localTestCases.value = []
   matchResult.value = { message: '', type: 'success' };
   
   let matchedCount = 0;

@@ -15,7 +15,7 @@
         <n-select
           v-model:value="localBasicInfo.difficulty"
           placeholder="选择难度级别"
-          style="width: 100%"
+          style="width: 90%"
           :options="difficultyOptions"
           @update:value="handleDifficultyChange"
         />
@@ -26,7 +26,7 @@
         <n-select
           v-model:value="localBasicInfo.category"
           placeholder="选择题目分类"
-          style="width: 100%"
+          style="width: 90%"
           :options="categoryOptions"
           @update:value="handleFieldChange('category', $event)"
         />
@@ -91,8 +91,8 @@ const difficultyOptions = [
 
 // 通用字段变更处理
 const handleFieldChange = (field, value) => {
-  localBasicInfo.value[field] = value;
-  updateParent();
+  localBasicInfo.value[field] = value
+  updateParent()
 };
 
 // 处理各个字段变化

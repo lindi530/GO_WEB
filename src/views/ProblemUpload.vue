@@ -27,13 +27,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import ProblemBasicInfo from '@/components/ProblemUpload/ProblemBasicInfo.vue';
 import ProblemEditor from '@/components/ProblemUpload/ProblemEditor.vue';
 import TestCasesUpload from '@/components/ProblemUpload/TestCasesUpload.vue';
 import ProblemConstraints from '@/components/ProblemUpload/ProblemConstraints.vue';
 import SubmitActions from '@/components/ProblemUpload/SubmitActions.vue';
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useDialog } from 'naive-ui'
 import api from '@/api'
 
 // 主数据存储
@@ -58,6 +58,33 @@ const problemData = ref({
 });
 
 const testCasesRef = ref(null); 
+const dialog = useDialog()
+
+const validateProblemData = () => { 
+  const d = problemData.value
+
+  // 基础信息
+  if (!d.basicInfo.title) return "题目标题不能为空"
+  if (!d.basicInfo.difficulty) return "题目难度不能为空"
+  if (d.basicInfo.tags.length === 0) return "至少选择一个标签"
+
+  // 描述
+  if (!d.description.description) return "题目描述不能为空"
+  if (!d.description.inputFormat) return "输入格式不能为空"
+  if (!d.description.outputFormat) return "输出格式不能为空"
+
+  // 测试用例
+  if (d.testCases.length === 0) return "至少要有一个测试用例"
+
+  // 约束 (可以根据需求细化)
+  for (const [lang, c] of Object.entries(d.constraints)) {
+    if (!c.timeLimit || !c.memoryLimit) {
+      return `${lang} 的时间/内存限制不能为空`
+    }
+  }
+
+  return null // 通过
+}
 
 // 移除可能导致递归的深层watch，只在需要时手动处理
 
@@ -87,20 +114,34 @@ onMounted(() => {
 
 
 const handleSubmitForReview = async () => {
-
   await testCasesRef.value?.matchTestCases(); 
 
-  let msg = "已提交审核"
-  try {
-    const resp = await api.uploadProblem(problemData.value)
-    if (resp.code == 0) {
-      msg = resp.message
+  const errorMsg = validateProblemData()
+  if (errorMsg) {
+    dialog.error({
+      title: '校验失败',
+      content: errorMsg,
+      positiveText: '确定'
+    })
+    return
+  }
+
+  
+
+  dialog.success({
+    title: '校验成功',
+    content: '所有必填项已填写，可以提交',
+    positiveText: '上传',
+    onPositiveClick: async () => {
+      try {
+        const resp = await api.uploadProblem(problemData.value)
+        if (resp.code == 0) {
+          msg = resp.message
+        }
+      } catch { }
     }
-  } catch { }
+  })
 
-
-  console.log('提交审核:', problemData.value);
   localStorage.removeItem('problem-draft')
-  alert(msg);
 };
 </script>

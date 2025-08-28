@@ -1,9 +1,9 @@
 <template>
-  <ProblemUpload />
+  <SubmissionList />
 </template>
 
 <script setup>
-import ProblemUpload from '@/views/ProblemUpload.vue';
+import SubmissionList from '@/components/coding/SubmissionList.vue';
 </script>
 
 <style scoped>

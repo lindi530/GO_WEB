@@ -1,8 +1,10 @@
 <template>
+  <n-dialog-provider>
     <n-message-provider>
       <NavBar/>
       <router-view/>
     </n-message-provider>
+  </n-dialog-provider>
 </template>
 
 <script>

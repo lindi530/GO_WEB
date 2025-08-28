@@ -117,6 +117,9 @@ export default {
   },
   uploadProblem(data) {
     return request.post(`/upload/problem`, data)
-  }
+  },
+  getSubmissions(problemID) {
+    return request.get(`/problems/${problemID}/submissions`)
+  },
   // 这里按需继续扩展接口
 };

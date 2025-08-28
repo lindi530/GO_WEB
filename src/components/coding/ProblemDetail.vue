@@ -5,6 +5,13 @@
         <div class="d-flex justify-space-between align-center">
           <h2 class="mb-0">{{ problem.title }}</h2>
         </div>
+        <button 
+          v-if="roomId === undefined"
+          class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          @click="switchToSubmissions"
+        >
+          提交记录
+        </button>
       </template>
       <template #header-extra>
         <n-space>
@@ -52,14 +59,31 @@
 </template>
 
 <script setup>
+import { roleTypes } from 'element-plus'
+
 const props = defineProps({
+  roomId: {
+    type: Number,
+    required: true
+  },
   problem: {
     type: Object,
+    required: true
+  },
+  tab: {
+    type: String,
     required: true
   }
 })
 
-console.log("ProblemDetail: ", props.problem)
+console.log("roomId: ", props.roomId)
+
+const emit = defineEmits(['update:tab'])
+
+const switchToSubmissions = () => {
+  // 触发事件，通知父组件更新activeTab为'submissions'
+  emit('update:tab', 'submissions')
+}
 
 function levelTagType(level) {
   switch (level) {
