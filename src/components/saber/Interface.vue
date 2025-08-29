@@ -4,8 +4,8 @@
     <teleport to="body">
       <div 
           :class="['modal-backdrop fade', showDialog ? 'show' : '']"
-          :style="{ zIndex: 0 }" 
-        ></div>
+          :style="{ zIndex: 10000 }" 
+        >
       <div class="modal-container">
         <!-- 弹窗内容 - 层级高于遮罩 -->
         <div class="modal-content-wrapper">
@@ -105,7 +105,7 @@
           </div>
         </div>
       </div>
-       
+       </div>
     </teleport>
   </div>
 </template>

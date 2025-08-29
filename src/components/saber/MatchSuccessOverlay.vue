@@ -29,8 +29,8 @@ const props = defineProps({
 /* 匹配成功特效样式 */
 .match-success-overlay {
   position: absolute;
-  top: 80px; /* 顶部标题栏高度 */
-  bottom: 70px; /* 底部按钮栏高度 */
+  top: 0px; /* 顶部标题栏高度 */
+  bottom: 0px; /* 底部按钮栏高度 */
   left: 0;
   right: 0;
   display: flex;
@@ -40,7 +40,7 @@ const props = defineProps({
   opacity: 1;
   transition: opacity 0.5s ease-out;
   animation: pulseBackground 4s infinite alternate;
-  border-radius: 8px;
+
   margin: 10px;
 }
 

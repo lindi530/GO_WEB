@@ -1,17 +1,16 @@
 <template>
-<div style="padding: 16px 24px; background-color: #f9f9f9;">
     <n-card :bordered="false" size="small" style="margin-bottom: 16px;">
       <template #header>
         <div class="d-flex justify-space-between align-center">
           <h2 class="mb-0">{{ problem.title }}</h2>
         </div>
-        <button 
+        <!-- <button 
           v-if="roomId === undefined"
           class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
           @click="switchToSubmissions"
         >
           提交记录
-        </button>
+        </button> -->
       </template>
       <template #header-extra>
         <n-space>
@@ -55,7 +54,6 @@
         <pre><code>输入: {{ ex.input }}{{"\n"}}输出: {{ ex.output }}</code></pre>
       </div>
     </n-card>
-</div>
 </template>
 
 <script setup>

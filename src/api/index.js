@@ -118,8 +118,11 @@ export default {
   uploadProblem(data) {
     return request.post(`/upload/problem`, data)
   },
-  getSubmissions(problemID) {
+  getSubmissionList(problemID) {
     return request.get(`/problems/${problemID}/submissions`)
   },
+  getSubmissionDetail(submissionID) {
+    return request.get(`/problems/submissions/${submissionID}`)
+  }
   // 这里按需继续扩展接口
 };

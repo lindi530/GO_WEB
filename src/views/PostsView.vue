@@ -1,13 +1,15 @@
 <template>
-  <main class="col-md-9 mb-4 container">
-    <h4 class="mb-3">All Posts</h4>
-    <div v-if="posts.length" >
-      <div v-for="post in posts" :key="post.post_id">
-        <SimplePost :post="post"/>
+  <div class="container my-4">
+    <n-card>
+      <h4 class="mb-3">All Posts</h4>
+      <div v-if="posts.length" >
+        <div v-for="post in posts" :key="post.post_id">
+          <SimplePost :post="post"/>
+        </div>
       </div>
-    </div>
-    <p v-else class="text-muted">No posts available.</p>
-  </main>
+      <p v-else class="text-muted">No posts available.</p>
+    </n-card>
+  </div>
 </template>
 
 <script>

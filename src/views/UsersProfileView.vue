@@ -1,10 +1,13 @@
 <template>
   <div class="container my-4">
     <div class="row">
-      <UserProfileInfo :user="user" />
-      <UserPosts :posts="posts"
-                 @post-deleted="handlePostDeleted"
-       />
+
+        <UserProfileInfo :user="user" />
+        <UserPosts :posts="posts"
+          @post-deleted="handlePostDeleted"
+         />
+
+      
     </div>
       <NewPostForm @created="addPost" />
     </div>

@@ -1,7 +1,17 @@
 <template>
-  <ChatAPP v-model:visible="chatVisible" />
+  <n-drawer
+    v-model:show="chatVisible"
+    :default-width="1408"
+    :placement="placement"
+    resizable
+  >
+    <n-drawer-content title="聊天" style="height: 100%; overflow: auto;">
+      <ChatAPP/>
+    </n-drawer-content>
+  </n-drawer>
   <SaberAPP v-model:visible="saberVisible" class="saber-fix"/>
-  <nav class="navbar navbar-expand-md navbar-dark bg-primary bg-gradient shadow-sm py-2">
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-gradient shadow-sm py-2"
+    style="background-color: #493131;">
 
     <div class="container">
       <RouterLink class="navbar-brand fw-bold fs-4" to="/">My Blog</RouterLink>
@@ -75,8 +85,9 @@ import { useStore } from 'vuex';
 import { closeWebSocket } from '@/composables/useWebSocket'
 import LoginModal from './account/LoginModal.vue';
 import RegisterModal from './account/RegisterModal.vue';
-import ChatAPP from './chat/UserChat.vue'
+import ChatAPP from '@/views/UserChatView.vue'
 import SaberAPP from './saber/Interface.vue'
+import UserList from './list/UserList.vue';
 import api from '@/api';
 
 const router = useRouter();
@@ -86,6 +97,7 @@ const isOpen = ref(false);
 const loginVisible = ref(false);
 const registerVisible = ref(false);
 const chatVisible = ref(false);
+const placement = ref("right")
 const saberVisible = ref(false)
 const pendingRoute = ref(null);
 

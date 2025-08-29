@@ -1,5 +1,5 @@
 <template>
-  <n-infinite-scroll style="height: 68vh" :distance="10" @load="handleLoad">
+  <n-infinite-scroll style="height: 100vh" :distance="10" @load="handleLoad">
     <div
       v-for="user in followedUsers"
       :key="user.user_id"
@@ -59,6 +59,7 @@ const handleLoad = () => {
 .user-item-wrapper.selected {
   background-color: #9ed048;
   color: #ffffff;
+  border-radius: 8px; /* 圆角大小，可根据需要调整数值 */
 }
 
 .user-item {

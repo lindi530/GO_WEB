@@ -2,7 +2,8 @@
   <div class="chat-wrapper">
     <!-- 顶部栏 -->
     <div class="chat-header">
-      <strong>与 {{ receiverName }} 聊天中</strong>
+      <strong v-if="receiverName && receiverName.trim()">与 {{ receiverName }} 聊天中</strong>
+      <strong v-else>未选择聊天对象</strong> <!-- receiverName 不存在时显示的内容，可自定义 -->
     </div>
 
     <!-- 聊天内容区域 -->
@@ -75,7 +76,7 @@ const localMessage = computed({
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 62vh;
+  max-height: 100vh;
   border: 1px solid #ccc;
   box-sizing: border-box;
 }

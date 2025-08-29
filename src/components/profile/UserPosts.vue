@@ -1,6 +1,7 @@
 <template>
   <main class="col-md-9 mb-4">
-    <h4 class="mb-3">My Posts</h4>
+    <n-card size="medium">
+      <h4 class="mb-3">My Posts</h4>
 
     <div v-if="pagedPosts.length">
       <SimplePost
@@ -30,6 +31,8 @@
         </li>
       </ul>
     </nav>
+    </n-card>
+    
   </main>
 </template>
 

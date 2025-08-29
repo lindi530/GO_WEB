@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-4 mb-5">
+  <n-card class="container mt-4 mb-5">
     <h2 class="mb-4">题目上传</h2>
     
     <ProblemBasicInfo 
@@ -23,7 +23,7 @@
       @saveDraft="handleSaveDraft"
       @submitForReview="handleSubmitForReview"
     />
-  </div>
+  </n-card>
 </template>
 
 <script setup>
