@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, nextTick, onMounted  } from 'vue';
+import { ref, watch, nextTick, onMounted  } from 'vue';
 import { NUpload, NButton, NCard } from 'naive-ui';
 
 // 定义属性和事件

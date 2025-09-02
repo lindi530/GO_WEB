@@ -4,11 +4,11 @@
     <div class="card-header d-flex align-items-center justify-content-between">
       <!-- 左侧头像 -->
       <router-link
-      :to="`/users/${post.author?.user_id}`"
+      :to="`/users/${author?.user_id}`"
       class="d-flex align-items-center text-decoration-none text-dark"
         >
         <div class="me-3">
-          <img :src="post.author.avatar" alt="头像" class="rounded-circle" width="40" height="40">
+          <img :src="author.avatar" alt="头像" class="rounded-circle" width="40" height="40">
         </div>
       </router-link>
 
@@ -16,23 +16,28 @@
       <div class="flex-grow-1">
          <div class="d-flex align-items-center">
           <router-link
-            :to="`/users/${post.author?.user_id}`"
+            :to="`/users/${author?.user_id}`"
             class="text-decoration-none text-dark"
           >
-            <strong>{{ post.author?.user_name }}</strong>
+            <strong>{{ author?.user_name }}</strong>
           </router-link>
         </div>
-        <div class="text-muted small">{{ formatDate(post.created_at ) }}</div>
+        <div class="text-muted small">{{ formatDate(submission.created_at ) }}</div>
       </div>
 
       <!-- 右侧标题 -->
        <router-link
-        :to="`/posts/${post.id}`"
+        :to="{
+            name: 'ProblemDetail',
+            params: {
+              problem_id: submission.problem_id,
+            },
+        }"
         target="_blank"
         class="flex-grow-1 text-decoration-none text-body"
         >
         <div class="ms-3 text-end fw-bold">
-{{ post.title }}
+{{ submission.title || "asdfasd" }}
         </div>
       </router-link>
       
@@ -42,10 +47,15 @@
     <div class="card-body p-2">
       <pre class="bg-light p-3 rounded overflow-auto" style="max-height: 300px">
 <router-link
-  :to="`/posts/${post.id}`"
+  :to="{
+    name: 'SubmissionDetail',
+    params: {
+        submission_id: submission.id,
+    },
+  }"
   target="_blank"
   class="flex-grow-1 text-decoration-none text-body"
->{{ post.content }}
+>{{ submission.code }}
 </router-link>
       </pre>
     </div>
@@ -57,7 +67,11 @@
 import { formatDate } from '@/utils/date'
 
 const props = defineProps({
-  post: {
+  author: {
+    type: Object,
+    required: true
+  },
+  submission: {
     type: Object,
     required: true
   }

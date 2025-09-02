@@ -118,7 +118,10 @@ export default {
   uploadProblem(data) {
     return request.post(`/upload/problem`, data)
   },
-  getSubmissionList(problemID) {
+  getUserSubmissionList(page, pageSize) {
+    return request.get(`/problems/submissions?page=${page}&page_size=${pageSize}`);
+  },
+  getProblemSubmissionList(problemID) {
     return request.get(`/problems/${problemID}/submissions`)
   },
   getSubmissionDetail(submissionID) {

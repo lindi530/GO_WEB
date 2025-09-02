@@ -96,7 +96,6 @@
 
 <script setup>
 import { reactive, watch } from 'vue';
-import { defineProps, defineEmits } from 'vue';
 import { NCard, NInputNumber } from 'naive-ui';
 
 // 接收父组件传递的初始数据

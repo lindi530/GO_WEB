@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { NCard, NInput, NSelect } from 'naive-ui';
 import ProblemTags from './ProblemTags.vue';
 

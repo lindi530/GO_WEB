@@ -1,5 +1,5 @@
 <template>
-  <aside class="col-md-3 mb-4">
+  <div class="col-md-3 mb-4">
     <div class="card shadow-sm">
       <div class="card-body text-center">
         <img
@@ -42,7 +42,7 @@
         </n-button>
       </div>
     </div>
-  </aside>
+  </div>
 </template>
 
 

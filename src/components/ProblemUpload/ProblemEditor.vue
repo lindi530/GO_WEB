@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { NCard, NInput } from 'naive-ui';
 
 const props = defineProps({

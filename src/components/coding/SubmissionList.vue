@@ -95,7 +95,7 @@ const submissionRecords = ref([]);
 
 onMounted(async () => {
   try {
-    const response = await api.getSubmissionList(props.problemId); 
+    const response = await api.getProblemSubmissionList(props.problemId); 
     console.log("responser: ", response)
     if (response.code === 0) {
       submissionRecords.value = response.data;

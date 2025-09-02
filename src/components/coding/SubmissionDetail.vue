@@ -1,10 +1,24 @@
 <template>
     <div class="container mt-4 custom-container">
     <n-card size="large">
+
+            <!-- 题目展示 -->
+        <div class="problem-info mb-4">
+          <h2 class="problem-title">{{ detailData.title }}</h2>
+          <n-card>
+            <p class="problem-content" v-html="detailData.description"></p>
+          </n-card>
+        </div>
         
         <!-- 标题区域 -->
         <div class="title">
-        <span class="username" style="color: #4183c4;">{{ detailData.user_name }}</span> 提交的代码
+          <router-link
+            :to="`/users/${detailData?.user_id}`"
+            class="text-decoration-none text-dark"
+          >
+          <span class="username" style="color: #4183c4;">{{ detailData.user_name }}</span>
+          </router-link>
+           提交的代码
         </div>
         <!-- 信息列表 -->
         <ul class="info-list">
@@ -45,25 +59,15 @@ import api from '@/api';
 
 const route = useRoute();
 const submissionId = route.params.submission_id;
-const detailData = ref({
-  user_name: '',
-  score: '',
-  created_at: '',
-  language: '',
-  exec_time: '',
-  memory_usage: '',
-  state: '',
-  code: ''
-});
+const detailData = ref({});
 
 onMounted(async () => {
   try {
     const resp = await api.getSubmissionDetail(submissionId);
     console.log(resp.data)
     if (resp.code === 0) {
-      detailData.value = {
-          ...resp.data,
-        };
+      detailData.value = resp.data,
+
     console.log("detailData: ", detailData.value)
     }
   } catch (error) {
@@ -71,7 +75,9 @@ onMounted(async () => {
   }
 });
 
-const codeLength = computed(() => detailData.value.code.length)
+const codeLength = computed(() => {
+    return detailData.value?.code?.length || 0
+})
 
 function getStateColor(state) {
   switch (state) {
@@ -105,6 +111,18 @@ const formatTimeToYMDHMS = (isoTime) => {
 </script>
 
 <style scoped>
+
+.problem-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.problem-content {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+}
 .custom-container {
   max-width: 50%;   /* 宽度可调 */
   margin: 0 auto;     /* 居中 */

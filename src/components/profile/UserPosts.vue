@@ -1,8 +1,4 @@
 <template>
-  <main class="col-md-9 mb-4">
-    <n-card size="medium">
-      <h4 class="mb-3">My Posts</h4>
-
     <div v-if="pagedPosts.length">
       <SimplePost
         v-for="post in pagedPosts"
@@ -11,7 +7,7 @@
       />
     </div>
 
-    <p v-else class="text-muted">You haven't posted anything yet.</p>
+    <p v-else class="text-muted">还没有任何发帖记录</p>
 
     <!-- Pagination Controls -->
     <nav v-if="totalPages > 1" aria-label="Posts pagination">
@@ -31,9 +27,6 @@
         </li>
       </ul>
     </nav>
-    </n-card>
-    
-  </main>
 </template>
 
 <script>
@@ -45,7 +38,7 @@ export default {
   name: 'UserPosts',
   props: {
     posts:    { type: Array, default: () => [] },
-    pageSize: { type: Number, default: 3 }
+    pageSize: { type: Number, default: 2 }
   },
   data() {
     return {

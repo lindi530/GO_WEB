@@ -16,7 +16,6 @@
 </template>
 
 <script setup>
-import { defineEmits } from 'vue';
 import { NButton } from 'naive-ui';
 
 // 定义事件
