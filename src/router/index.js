@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 
 import HomeView from '../views/HomeView.vue'
-import PostsView from '../views/PostsView.vue'
+import PostsView from '../views/PostsListView.vue'
 import UsersView from '../views/UsersProfileView.vue'
 import NotFound from '@/components/NotFound.vue'
 import UserList from '@/views/UserListView.vue'
@@ -51,6 +51,7 @@ const routes = [
     path: '/posts/:post_id',
     name: 'PostDetail',
     component: PostDetail,
+    props: true
   },
   {
     path: '/problems',

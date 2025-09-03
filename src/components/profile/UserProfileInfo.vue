@@ -17,7 +17,7 @@
         <n-divider />
         <p class="text-muted">{{ "个性签名：" + user.quote }}</p>
         <n-divider />
-        <p>Joined: {{ formattedDate(user.update_time) }}</p>
+        <p>Joined: {{ formattedDate(user.create_time) }}</p>
         <n-divider />
 
         <div class="d-flex justify-content-between w-100 mb-2 text-center">

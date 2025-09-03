@@ -25,6 +25,8 @@
 </template>
 
 <script setup>
+import { dialogError } from "@/utils/dialog"
+import { useDialog  } from 'naive-ui'
 import { ref, onMounted } from "vue";
 import SubmissionSimple from "../coding/SubmissionSimple.vue";
 import api from "@/api"; // 假设你有个 api 封装
@@ -35,9 +37,8 @@ const props = defineProps({
     required: true
   }
 })
-console.log("author: ", props.author)
-const emit = defineEmits(["handle-error"]);
 
+const dialog = useDialog()
 const currentPage = ref(1);
 const pageSize = ref(2);  // 每页条数
 const total = ref(0);      // 总数，后端返回
@@ -54,10 +55,10 @@ const fetchSubmissions = async () => {
       submissions.value = resp.data.list; // 数据列表
       total.value = resp.data.total;      // 总数
     } else {
-      emit("handle-error", "提交记录请求发送成功", "服务器响应失败");
+      dialogError(dialog, "提交记录请求发送成功", "服务器响应失败");
     }
   } catch {
-    emit("handle-error", "提交记录请求发送失败", "");
+    dialogError(dialog, "提交记录请求发送失败", "");
   }
 };
 

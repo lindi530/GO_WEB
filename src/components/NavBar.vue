@@ -109,7 +109,7 @@ const isLogin = computed(() => store.getters['user/isLogin']);
 const userName = computed(() => store.getters['user/userName']);
 const userId = computed(() => store.getters['user/userId']);
 const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png');
-
+console.log("loginUserId: ", userId)
 const leftLinks = computed(() => [
   { label: '首页', to: '/' },
   { label: '帖子列表', to: '/posts' },  

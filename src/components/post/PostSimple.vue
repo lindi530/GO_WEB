@@ -27,8 +27,7 @@
 
       <!-- 右侧标题 -->
        <router-link
-        :to="`/posts/${post.id}`"
-        target="_blank"
+        :to="`/posts/${post.post_id}`"
         class="flex-grow-1 text-decoration-none text-body"
         >
         <div class="ms-3 text-end fw-bold">
@@ -42,8 +41,7 @@
     <div class="card-body p-2">
       <pre class="bg-light p-3 rounded overflow-auto" style="max-height: 300px">
 <router-link
-  :to="`/posts/${post.id}`"
-  target="_blank"
+  :to="`/posts/${post.post_id}`"
   class="flex-grow-1 text-decoration-none text-body"
 >{{ post.content }}
 </router-link>
@@ -62,7 +60,6 @@ const props = defineProps({
     required: true
   }
 })
-
 </script>
 
 <style scoped>

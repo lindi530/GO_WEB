@@ -32,7 +32,7 @@
       <!-- 美化后的点赞按钮 -->
       <button
         class="like-button"
-        :class="{ 'liked': post.value?.like }"
+        :class="{ 'liked': post.value?.liked }"
         @click="likePost"
       >
         <i class="bi bi-hand-thumbs-up"></i>
@@ -40,19 +40,21 @@
         <span class="like-count">{{ post.likes || 0 }}</span>
       </button>
     </div>
-    <CommentList :postId="postId" />
+    <CommentList 
+    :postId="postId" />
     </n-card>
   </div>
 </template>
 
 <script setup>
+import { dialogError, dialogInfo } from '@/utils/dialog'
 import { useDialog } from "naive-ui"
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api'
 import CommentList from '../comment/CommentList.vue'
 
-
+const dialog = useDialog()
 const route = useRoute()
 const postId = route.params.post_id
 
@@ -64,45 +66,39 @@ const post = ref({})
 onMounted(async () => {
   // 获取帖子
   const resp = await api.getPostByPostId(postId)
-  console.log("resp: ", resp)
-  post.value = resp.data
+  if (resp.code == 0) {
+    post.value = resp.data
+  } else {
+    dialogError(dialog, "获取帖子信息失败", resp.message)
+  }
+  
 })
 
 const LikeMassage = computed(() => {
-  return post.value.like ? likeMsg : UnLikeMsg
+  return post.value.liked ? likeMsg : UnLikeMsg
 })
 
 const likePost = async () => {
-  if (post.value.like === false) {
-    const res = await api.likePost(postId)
-    if (res.code === 0) {
+  if (post.value.liked === false) {
+    const resp = await api.likePost(postId)
+    if (resp.code === 0) {
       post.value.likes = (post.value.likes + 1 || 0)
-      post.value.like = !post.value.like
-      handleLike("点赞成功")
+      post.value.liked = !post.value.liked
+      dialogInfo(dialog, "点赞成功")
     } else {
-      handleLike("点赞失败")
+      dialogError(dialog, "点赞失败", resp.message)
     }
   } else {
-    const res = await api.unLikePost(postId)
-    if (res.code === 0) {
+    const resp = await api.unLikePost(postId)
+    if (resp.code === 0) {
       post.value.likes = (post.value.likes - 1 || 0)
-      post.value.like = !post.value.like
-      handleLike("取消点赞成功")
+      post.value.liked = !post.value.liked
+      dialogInfo(dialog, "取消点赞成功")
     } else {
-      handleLike("取消点赞失败")
+      dialogError(dialog, "取消点赞失败", resp.message)
     }
   }
 }
-
-const dialog = useDialog()
-const handleLike = (content) => {
-  dialog.info({
-    title: '提示',
-    content: content,
-    positiveText: '确认',
-  })
-}
-
 </script>
 
 <style scoped>

@@ -7,7 +7,7 @@
           <SimplePost :post="post"/>
         </div>
       </div>
-      <p v-else class="text-muted">No posts available.</p>
+      <p v-else class="text-muted">还没有用户发送帖子</p>
     </n-card>
   </div>
 </template>
@@ -29,9 +29,8 @@ export default {
   methods: {
     async fetchPosts() {
       try {
-        console.log("api response")
         const response = await api.getAllPosts();
-        console.log("PostView response: ", response)
+
         if (response.code) throw new Error('Fetch failed');
         this.posts = response.data;
       } catch (error) {

@@ -25,8 +25,8 @@ export default {
   getPostsByUserId(userId) {
     return request.get(`/users/${userId}/posts`);
   },
-  createPost(userId, postdata) {
-    return request.post(`/users/${userId}/posts/create`, postdata);
+  createPost(postdata) {
+    return request.post(`/users/posts/create`, postdata);
   },
   register(postdata) {
     return request.post('/users/register', postdata)

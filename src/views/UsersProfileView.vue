@@ -1,10 +1,8 @@
 <template>
   <div class="container my-4">
+    <!-- 上半部分的 row -->
     <div class="row">
-      
-      <UserProfileInfo 
-        :user="user"/>
-
+      <UserProfileInfo :user="user"/>
       <n-card class="col-md-9 mb-4">
         <n-tabs type="line" animated>
           <n-tab-pane name="posts" tab="帖子">
@@ -16,22 +14,28 @@
           <n-tab-pane name="submissions" tab="提交记录">
             <UserSubmissions 
               :author="user"
-              @handle-error="handleError"
             />
           </n-tab-pane>
         </n-tabs>
       </n-card>
-      
-      
     </div>
-      <NewPostForm @created="addPost" />
+
+    <!-- 下半部分也放入 row，并使用相同的栅格列（如 col-md-9） -->
+    <div class="row">
+        <NewPostForm
+          v-if="canCreatePost"
+          @created="addPost" 
+        />
     </div>
+  </div>
 </template>
 
 <script setup>
-import { useDialog } from 'naive-ui'
+import { dialogError, dialogInfo } from '@/utils/dialog.js'
 import { ref, computed, onMounted, watch } from 'vue';
+import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
+import { useDialog }  from 'naive-ui'
 import UserProfileInfo from '../components/profile/UserProfileInfo.vue';
 import UserPosts from '../components/profile/UserPosts.vue';
 import UserSubmissions from '../components/profile/UserSubmissions.vue';
@@ -40,21 +44,31 @@ import api from '@/api';
 
 const user = ref({});
 const posts = ref([]);
-
+const dialog = useDialog()
 const route = useRoute();
 
 const userId = computed(() => parseInt(route.params.userId));
 
+const store = useStore();
+// console.log("直接获取 getter：", store.getters['user/userId']);
+const loginUserId = computed(() => store.getters['user/userId']);
+
+const canCreatePost = computed(() => {
+  return userId.value === loginUserId.value;
+})
+
 async function addPost(post) {
   try {
-    const res = await api.createPost(userId.value, { user_Id: userId.value, ...post });
-    const newPost = res.data.post;
-    posts.value.unshift(newPost);
+    const resp = await api.createPost({ user_id: userId.value, ...post });
+    if (resp.code === 0) {
+      const newPost = resp.data.post;
+      posts.value.unshift(newPost);
+      dialogInfo(dialog, resp.message)
+    } else {
+      dialogInfo(dialog, resp.message)
+    }
   } catch {
-
-  }
-  if (typeof window !== 'undefined' && window.$toast) {
-    window.$toast.success('Post created!');
+    dialogError(dialog, "发送请求失败", "")
   }
 }
 
@@ -63,7 +77,6 @@ function handlePostDeleted(deletedPostId) {
 }
 
 onMounted(async () => {
-  console.log("userIdFromRoute: ", userId.value)
   loadUserProfile()
 });
 
@@ -80,13 +93,12 @@ const loadUserProfile = async () => {
   try {
     const profileResp = await api.getUserProfileInfo(userId.value);
     if (profileResp.code === 0) {
-      console.log("profileResp:", profileResp)
       user.value = profileResp.data;
     } else {
-      handleError("用户信息请求发送成功", "服务器响应失败")
+      dialogError(dialog, "用户信息请求发送成功", "服务器响应失败")
     }
   } catch {
-    handleError("用户信息请求发送失败", "")
+    dialogError(dialog, "用户信息请求发送失败", "")
   }
 
   try {
@@ -94,21 +106,13 @@ const loadUserProfile = async () => {
     if (postsResp.code === 0) {
       posts.value = postsResp.data.posts;
     } else {
-      handleError("帖子信息请求发送成功", "服务器响应失败")
+      dialogError(dialog, "帖子信息请求发送成功", "服务器响应失败")
     }
   } catch { 
-    handleError("帖子信息请求发送失败", "")
+    dialogError(dialog, "帖子信息请求发送失败", "")
   }
 };
 
-const dialog = useDialog()
-const handleError = (content1, content2) => {
-  dialog.error({
-    title: '错误',
-    content: content1 + '，' + content2,
-    positiveText: '那好吧',
-  })
-}
 </script>
 
 <style scoped>
