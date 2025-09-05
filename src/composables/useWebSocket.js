@@ -48,7 +48,7 @@ export function initWebSocket(token) {
 
   console.log("建立连接：", token)
 
-  ws = new WebSocket(`ws://localhost:8000/ws?token=${token}`)
+  ws = new WebSocket(`ws://${window.location.host}/ws?token=${token}`)
   console.log("完成连接")
 
   getFollowedUsers()
