@@ -45,11 +45,11 @@ async function refreshUserOnlineStatus(token) {
 request.interceptors.response.use(
   async res => {
     // 这里根据你后端业务自定义的 token 过期标志判断
-    console.log("相应拦截：", res.data)
+
     if (res.data.code === 1 && res.data.err_code === 3000) {
       // 模拟 401 状态时的 originalRequest 对象
       const originalRequest = res.config || {}
-      console.log("originalRequest: ", originalRequest)
+
       // 用一个标记避免重复刷新
       if (!originalRequest._retry) {
         originalRequest._retry = true

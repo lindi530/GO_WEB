@@ -47,10 +47,9 @@ const posts = ref([]);
 const dialog = useDialog()
 const route = useRoute();
 
-const userId = computed(() => parseInt(route.params.userId));
-
+const userId = computed(() => route.params.userId);
 const store = useStore();
-// console.log("直接获取 getter：", store.getters['user/userId']);
+
 const loginUserId = computed(() => store.getters['user/userId']);
 
 const canCreatePost = computed(() => {

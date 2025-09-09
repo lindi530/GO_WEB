@@ -1,7 +1,6 @@
 // useWebSocket.js
-import { ref, toHandlerKey } from 'vue'
+import { ref,  } from 'vue'
 import api from '@/api'
-import { call } from 'naive-ui/es/_utils'
 
 let ws = null
 let isConnected = false
@@ -41,19 +40,16 @@ export function registerMatchCallback(callback) {
 
 
 export function initWebSocket(token) {
-
-  console.log("isConnected: ", isConnected, "    ws: ", ws)
-  // if (isConnected || ws) return
   if (ws && ws.readyState === WebSocket.OPEN) return
 
-  console.log("建立连接：", token)
+  const wsBaseUrl = process.env.VUE_APP_WS_BASE_URL;
+  const wsUrl = `${wsBaseUrl}?token=${token}`;
+  ws = new WebSocket(wsUrl);
 
-  ws = new WebSocket(`ws://${window.location.host}/ws?token=${token}`)
   console.log("完成连接")
 
   getFollowedUsers()
   console.log("getFollowedUsers:", followedUsers.value)
-  
 
   ws.onopen = () => {
     isConnected = true

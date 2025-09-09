@@ -14,7 +14,7 @@
           :key="index"
           class="message-container"
         >
-          <div v-if="msg.from === userId" class="message-self">
+          <div v-if="msg.from == userId" class="message-self">
             <div class="bubble-self">{{ msg.content }}</div>
             <img :src="userAvatar" class="avatar" />
           </div>
@@ -46,7 +46,10 @@ import { ref, computed, watch, nextTick } from 'vue'
 const props = defineProps({
   messages: Array,
   newMessage: String,
-  userId: Number,
+  userId: {
+    type: [Number, String],
+    required: true,
+  },
   userAvatar: String,
   receiverId: Number,
   receiverName: String,

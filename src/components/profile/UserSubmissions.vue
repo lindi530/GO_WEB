@@ -47,7 +47,8 @@ const submissions = ref([]);
 // 获取分页数据
 const fetchSubmissions = async () => {
   try {
-    const resp = await api.getUserSubmissionList(currentPage.value, pageSize.value)
+    console.log("author1: ", props.author)
+    const resp = await api.getUserSubmissionList(props.author.user_id, currentPage.value, pageSize.value)
 
     console.log("Submissions: ", resp.data.list )
 
@@ -58,6 +59,7 @@ const fetchSubmissions = async () => {
       dialogError(dialog, "提交记录请求发送成功", "服务器响应失败");
     }
   } catch {
+    console.log("author2: ", props.author)
     dialogError(dialog, "提交记录请求发送失败", "");
   }
 };

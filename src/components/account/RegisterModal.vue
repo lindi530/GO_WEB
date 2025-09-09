@@ -32,6 +32,7 @@
                 id="regPassword"
                 v-model="form.password"
                 required
+                placeholder="以大写字母开头且总长度大于4"
               />
             </div>
             <div class="mb-3">
@@ -42,6 +43,7 @@
                 id="re_password"
                 v-model="form.re_password"
                 required
+                placeholder="再次输入密码"
               />
             </div>
             <div class="d-flex align-items-center">
