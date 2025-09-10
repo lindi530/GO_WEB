@@ -43,7 +43,7 @@ import { useWebSocketContext } from '@/composables/useWebSocket'
 const store = useStore()
 const { messageMap, followedUsers, selectedUserId, sendMessage } = useWebSocketContext()
 
-const userId = computed(() => store.getters['user/userId'])
+const userId = computed(() => String(store.getters['user/userId']))
 const userAvatar = computed(() => store.getters['user/userAvatar'] || '/default-avatar.png')
 
 
