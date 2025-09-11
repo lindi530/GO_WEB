@@ -16,14 +16,14 @@ export default {
   getUserProfileInfo(userId) {
     return request.get(`/users/${userId}`)
   },
-  getAllPosts() {
-    return request.get('/posts')
+  getPosts(page, pageSize) {
+    return request.get(`/posts?page=${page}&page_size=${pageSize}`)
   },
   getUserList() {
     return request.get('users/userlist')
   },
-  getPostsByUserId(userId) {
-    return request.get(`/users/${userId}/posts`);
+  getPostsByUserId(userId, page, pageSize) {
+    return request.get(`/users/${userId}/posts?page=${page}&page_size=${pageSize}`);
   },
   createPost(postdata) {
     return request.post(`/users/posts/create`, postdata);

@@ -7,8 +7,10 @@
         <n-tabs type="line" animated>
           <n-tab-pane name="posts" tab="帖子">
             <UserPosts 
-              :posts="posts"
+              :update-posts="updatePosts"
+              :user-id="userId"
               @post-deleted="handlePostDeleted"
+              @update-state="updateState"
             />
           </n-tab-pane>
           <n-tab-pane name="submissions" tab="提交记录">
@@ -24,14 +26,14 @@
     <div class="row">
         <NewPostForm
           v-if="canCreatePost"
-          @created="addPost" 
+          @update-state="updateState"
         />
     </div>
   </div>
 </template>
 
 <script setup>
-import { dialogError, dialogInfo } from '@/utils/dialog.js'
+import { dialogError } from '@/utils/dialog.js'
 import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
@@ -43,7 +45,7 @@ import NewPostForm from '../components/profile/NewPostForm.vue';
 import api from '@/api';
 
 const user = ref({});
-const posts = ref([]);
+const updatePosts = ref(false);
 const dialog = useDialog()
 const route = useRoute();
 
@@ -53,22 +55,11 @@ const store = useStore();
 const loginUserId = computed(() => store.getters['user/userId']);
 
 const canCreatePost = computed(() => {
-  return userId.value === loginUserId.value;
+  return userId.value == loginUserId.value;
 })
 
-async function addPost(post) {
-  try {
-    const resp = await api.createPost({ user_id: userId.value, ...post });
-    if (resp.code === 0) {
-      const newPost = resp.data.post;
-      posts.value.unshift(newPost);
-      dialogInfo(dialog, resp.message)
-    } else {
-      dialogInfo(dialog, resp.message)
-    }
-  } catch {
-    dialogError(dialog, "发送请求失败", "")
-  }
+function updateState(val) {
+  updatePosts.value = val
 }
 
 function handlePostDeleted(deletedPostId) {
@@ -100,16 +91,16 @@ const loadUserProfile = async () => {
     dialogError(dialog, "用户信息请求发送失败", "")
   }
 
-  try {
-    const postsResp = await api.getPostsByUserId(userId.value);
-    if (postsResp.code === 0) {
-      posts.value = postsResp.data.posts;
-    } else {
-      dialogError(dialog, "帖子信息请求发送成功", "服务器响应失败")
-    }
-  } catch { 
-    dialogError(dialog, "帖子信息请求发送失败", "")
-  }
+  // try {
+  //   const postsResp = await api.getPostsByUserId(userId.value);
+  //   if (postsResp.code === 0) {
+  //     posts.value = postsResp.data.posts;
+  //   } else {
+  //     dialogError(dialog, "帖子信息请求发送成功", "服务器响应失败")
+  //   }
+  // } catch { 
+  //   dialogError(dialog, "帖子信息请求发送失败", "")
+  // }
 };
 
 </script>

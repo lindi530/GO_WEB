@@ -57,7 +57,6 @@
 </template>
 
 <script setup>
-import { roleTypes } from 'element-plus'
 
 const props = defineProps({
   roomId: {

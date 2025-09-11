@@ -100,7 +100,7 @@ const checkFollowing = async () => {
 };
 
 const shouldShowFollowButton = computed(() => {
-  return currentUserId.value !== targetUserId.value;
+  return currentUserId.value != targetUserId.value;
 });
 
 // 切换关注状态

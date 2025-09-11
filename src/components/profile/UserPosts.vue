@@ -1,7 +1,7 @@
 <template>
-    <div v-if="pagedPosts.length">
+    <div v-if="posts.length">
       <SimplePost
-        v-for="post in pagedPosts"
+        v-for="post in posts"
         :key="post.post_id"
         :post="post"
       />
@@ -9,80 +9,81 @@
 
     <p v-else class="text-muted">还没有任何发帖记录</p>
 
-    <!-- Pagination Controls -->
-    <nav v-if="totalPages > 1" aria-label="Posts pagination">
-      <ul class="pagination justify-content-center mt-3">
-        <li :class="['page-item', { disabled: currentPage === 1 }]">
-          <button class="page-link" @click="changePage(currentPage - 1)">Previous</button>
-        </li>
-        <li
-          v-for="page in totalPages"
-          :key="page"
-          :class="['page-item', { active: page === currentPage }]"
-        >
-          <button class="page-link" @click="changePage(page)">{{ page }}</button>
-        </li>
-        <li :class="['page-item', { disabled: currentPage === totalPages }]">
-          <button class="page-link" @click="changePage(currentPage + 1)">Next</button>
-        </li>
-      </ul>
-    </nav>
+    <n-space vertical class="vertical-space" >
+      <n-pagination
+        v-model:page="currentPage"
+        :page-size="pageSize"
+        :item-count="total"
+        show-quick-jumper
+        @update:page="fetchPosts"
+      >
+        <template #goto>
+          跳转
+        </template>
+      </n-pagination>
+    </n-space>
+ 
 </template>
 
-<script>
+<script setup>
+import { dialogError } from "@/utils/dialog"
+import { useDialog  } from 'naive-ui'
+import { ref, onMounted, watch } from 'vue';
 import api from '@/api';
-import avatarPath from '@/assets/1.png'
 import SimplePost from '../post/PostSimple.vue';
-export default {
-  components: {SimplePost},
-  name: 'UserPosts',
-  props: {
-    posts:    { type: Array, default: () => [] },
-    pageSize: { type: Number, default: 2 }
+
+// props
+const props = defineProps({
+  userId: {
+    type: String,
+    required: true,
   },
-  data() {
-    return {
-      currentPage: 1,
-      avatar: avatarPath,
-    };
-  },
-  computed: {
-    totalPages() { return Math.ceil(this.posts.length / this.pageSize); },
-    pagedPosts() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      return this.posts.slice(start, start + this.pageSize);
+  updatePosts: {
+    type: Boolean,
+    required: true,
+  }
+});
+// emit
+const emit = defineEmits(['post-deleted', 'update-state']);
+
+// 响应式状态
+const posts = ref([]);
+const dialog = useDialog()
+const currentPage = ref(1);
+const pageSize = ref(2);  // 每页条数
+const total = ref(0);      // 总数，后端返回
+
+// 方法
+// 获取帖子
+const fetchPosts = async () => {
+  try {
+    const resp = await api.getPostsByUserId(props.userId, currentPage.value, pageSize.value);
+
+    if (resp.code === 0) {
+      emit('update-state', false)
+      posts.value = resp.data.posts;        // 数据列表
+      total.value = resp.data.total;      // 总数
+    } else {
+      dialogError(dialog, "提交记录请求发送成功", "服务器响应失败");
     }
-  },
-  methods: {
-    changePage(page) {
-      if (page < 1 || page > this.totalPages) return;
-      this.currentPage = page;
-      window.scrollTo(0, 0);
-    },
-    formattedDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString(undefined, {
-        year: 'numeric', month: 'short', day: 'numeric'
-      });
-    },
-    async handleDelete(postId, userId) {
-      if (!confirm("Are you sure you want to delete this post?")) return
-      try {
-        const response = await api.deletePost(userId, postId)
- 
-        if (response.code) throw new Error('Delete failed')
-        
-        // 从前端列表中移除已删除的帖子
-        this.$emit('post-deleted', postId)
-        // 如果需要可以添加成功提示
-        alert('Post deleted successfully')
-        
-      } catch (error) {
-        console.error('Delete error:', error)
-        alert('Failed to delete post')
-      }
-    }
+  } catch (error) {
+    dialogError(dialog, "提交记录请求发送失败", "");
   }
 };
+
+onMounted(fetchPosts)
+
+watch(() => props.updatePosts, (newVal, oldVal) => {
+  if (newVal) {
+    fetchPosts(); // 你要调用的函数
+  }
+});
 </script>
 
-<style></style>
+
+<style scoped>
+.vertical-space {
+  align-items: center;
+  margin-top: auto;
+}
+</style>

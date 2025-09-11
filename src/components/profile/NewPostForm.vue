@@ -14,25 +14,49 @@
     </form>
   </n-card>
 </template>
-<script>
-export default {
-  name: 'NewPostForm',
-  data() {
-    return { post: { title: '', content: '' } };
-  },
-  emits: ['created'],
-  methods: {
-    submit() {
-      const newPost = {
-        ...this.post,
-        status: 0,
-        content: this.post.content.slice(0, 50)
-      };
-      console.log('newdata:', newPost)
-      this.$emit('created', newPost);
-      this.post.title = '';
-      this.post.content = '';
-    }
-  }
+
+<script setup>
+import { ref } from 'vue';
+import { dialogError } from '@/utils/dialog.js'
+import { useDialog }  from 'naive-ui'
+
+// 响应式数据
+const post = ref({
+  title: '',
+  content: ''
+});
+
+// emit
+const emit = defineEmits(['update-state']);
+
+const dialog = useDialog()
+// 提交方法
+const submit = () => {
+  const newPost = {
+    ...post.value,
+    status: 0,
+    content: post.value.content.slice(0, 50) // 截取前50字符
+  };
+
+  addPost(newPost)
+
+  // 重置表单
+  post.value.title = '';
+  post.value.content = '';
 };
+
+async function addPost(post) {
+  try {
+    const resp = await api.createPost({ user_id: userId.value, ...post });
+    if (resp.code === 0) {
+      emit('update-state', false)
+      dialogInfo(dialog, resp.message)
+    } else {
+      dialogInfo(dialog, resp.message)
+    }
+  } catch {
+    dialogError(dialog, "发送请求失败", "")
+  }
+}
 </script>
+

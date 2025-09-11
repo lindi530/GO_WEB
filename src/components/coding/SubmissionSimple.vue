@@ -45,7 +45,7 @@
 
     <!-- 卡片内容 -->
     <div class="card-body p-2">
-      <pre class="bg-light p-3 rounded overflow-auto" style="max-height: 300px">
+      <pre class="bg-light p-3 rounded overflow-auto" style="max-height: 90px">
 <router-link
   :to="{
     name: 'SubmissionDetail',
