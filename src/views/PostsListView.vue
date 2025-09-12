@@ -6,7 +6,7 @@
         <h5 class="mb-0">第 {{ currentPage }} 页</h5>
       </div>
 
-      <div v-if="posts.length" >
+      <div v-if="posts && posts.length" >
         <div v-for="post in posts" :key="post.post_id">
           <SimplePost :post="post"/>
         </div>
